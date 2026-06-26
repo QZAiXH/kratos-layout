@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kratos Backend API"
+  short_description: "Build proto-first Kratos APIs across service, biz, and data."
+  default_prompt: "Use this skill when adding or changing a go-kratos backend API endpoint."

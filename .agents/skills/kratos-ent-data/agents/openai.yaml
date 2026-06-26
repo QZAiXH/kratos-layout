@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kratos Ent Data"
+  short_description: "Handle Ent schemas, repos, transactions, and DTO mapping."
+  default_prompt: "Use this skill when changing Ent schemas or data repositories in a go-kratos service."

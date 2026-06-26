@@ -1,0 +1,27 @@
+server:
+  http:
+    addr: 0.0.0.0:8000
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:9000
+    timeout: 1s
+data:
+  database:
+    driver: mysql
+    source: root:root@tcp(127.0.0.1:3306)/test?parseTime=True&loc=Local
+  redis:
+    addr: 127.0.0.1:6379
+    read_timeout: 0.2s
+    write_timeout: 0.2s
+auth:
+  private_key_path: ""
+  access_token_ttl: 2h
+  refresh_token_ttl: 168h
+log:
+  level: info
+  filepath: ""
+  rotate:
+    max_size: 1024
+    max_backups: 5
+    max_age: 7
+    compress: true
