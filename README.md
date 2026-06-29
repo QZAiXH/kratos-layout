@@ -35,7 +35,7 @@ make test
 - OpenAPI generation.
 - Wire-based dependency injection.
 - Layered `service`, `biz`, and `data` packages.
-- Config-driven SQL database and Redis clients in `internal/data`.
+- Config-driven SQL database, Redis, and Casbin initialization in `internal/dep`.
 - JWT access/refresh token helpers and Casbin middleware.
 - `typecatch` helpers for simple same-name structure copying.
 - Zap-backed structured logging with optional file rotation.
@@ -55,6 +55,7 @@ configs/              Local configuration
 internal/server/      HTTP and gRPC server construction
 internal/service/     Transport-facing service methods
 internal/biz/         Usecases, entities, errors, repository interfaces
+internal/dep/         External infrastructure initialization
 internal/data/        Repository implementations
 internal/pkg/         Shared auth, token, and type conversion helpers
 .agents/skills/       Project agent skills
@@ -75,13 +76,15 @@ The sample CRUD API demonstrates common conventions for Kratos projects:
 
 The sample Todo repository intentionally stays in-memory. It demonstrates flow
 across layers, but does not implement a full query engine. Real repositories can
-use the shared SQL/Redis clients from `internal/data` and apply parsed filters
-and ordering in SQL, Ent, or another storage layer.
+use the SQL/Redis clients initialized by `internal/dep`, aggregated by
+`internal/data`, and apply parsed filters and ordering in SQL, Ent, or another
+storage layer.
 
 ## Auth Template Practices
 
 - `internal/pkg/token` issues and validates Ed25519 JWT access/refresh tokens.
 - `internal/pkg/authz` provides request user extraction and Casbin middleware.
+- `internal/dep` initializes the Casbin enforcer.
 - `internal/server/security.go` applies JWT + Casbin to protected operations.
 - The sample Todo operations are whitelisted so the template works immediately.
 - `configs/config.yaml` leaves `auth.private_key_path` empty by default; the

@@ -11,7 +11,7 @@ import (
 	"helloworld/internal/biz"
 	"helloworld/internal/conf"
 	"helloworld/internal/data"
-	"helloworld/internal/pkg/authz"
+	"helloworld/internal/dep"
 	"helloworld/internal/server"
 	"helloworld/internal/service"
 	"log/slog"
@@ -29,13 +29,24 @@ func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logg
 	if err != nil {
 		return nil, nil, err
 	}
-	enforcer, err := authz.NewCasbinEnforcer()
+	enforcer, err := dep.NewCasbinEnforcer()
 	if err != nil {
 		return nil, nil, err
 	}
 	middleware := server.NewSecurityMiddleware(manager, enforcer)
-	dataData, cleanup, err := data.NewData(confData)
+	db, cleanup, err := dep.NewDB(confData)
 	if err != nil {
+		return nil, nil, err
+	}
+	client, cleanup2, err := dep.NewRedis(confData)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	dataData, err := data.NewData(db, client)
+	if err != nil {
+		cleanup2()
+		cleanup()
 		return nil, nil, err
 	}
 	todoRepo := data.NewTodoRepo(dataData)
@@ -45,6 +56,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logg
 	httpServer := server.NewHTTPServer(confServer, middleware, logger, todoService)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
+		cleanup2()
 		cleanup()
 	}, nil
 }

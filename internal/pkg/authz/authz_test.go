@@ -7,6 +7,8 @@ import (
 
 	"helloworld/internal/pkg/token"
 
+	casbinv3 "github.com/casbin/casbin/v3"
+	"github.com/casbin/casbin/v3/model"
 	"github.com/go-kratos/kratos/v3/middleware"
 	"github.com/go-kratos/kratos/v3/transport"
 )
@@ -21,7 +23,7 @@ func TestJWTAndCasbinMiddleware(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GenerateTokenPair() error = %v", err)
 	}
-	enforcer, err := NewCasbinEnforcer()
+	enforcer, err := newTestCasbinEnforcer()
 	if err != nil {
 		t.Fatalf("NewCasbinEnforcer() error = %v", err)
 	}
@@ -51,7 +53,7 @@ func TestJWTAndCasbinMiddlewareRejectsMissingToken(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewManager() error = %v", err)
 	}
-	enforcer, err := NewCasbinEnforcer()
+	enforcer, err := newTestCasbinEnforcer()
 	if err != nil {
 		t.Fatalf("NewCasbinEnforcer() error = %v", err)
 	}
@@ -73,6 +75,19 @@ type fakeTransport struct {
 	header    fakeHeader
 }
 
+func newTestCasbinEnforcer() (*casbinv3.Enforcer, error) {
+	m, err := model.NewModelFromString(testCasbinModel)
+	if err != nil {
+		return nil, err
+	}
+	enforcer, err := casbinv3.NewEnforcer(m)
+	if err != nil {
+		return nil, err
+	}
+	_, err = enforcer.AddPolicy(RoleAdmin, "*", "*")
+	return enforcer, err
+}
+
 func (t fakeTransport) Kind() transport.Kind            { return transport.KindHTTP }
 func (t fakeTransport) Endpoint() string                { return "" }
 func (t fakeTransport) Operation() string               { return t.operation }
@@ -86,3 +101,20 @@ func (h fakeHeader) Set(key, value string)      { h[key] = value }
 func (h fakeHeader) Add(key, value string)      { h[key] = value }
 func (h fakeHeader) Keys() []string             { return nil }
 func (h fakeHeader) Values(key string) []string { return []string{h[key]} }
+
+const testCasbinModel = `
+[request_definition]
+r = sub, obj, act
+
+[policy_definition]
+p = sub, obj, act
+
+[role_definition]
+g = _, _
+
+[policy_effect]
+e = some(where (p.eft == allow))
+
+[matchers]
+m = (r.sub == p.sub || g(r.sub, p.sub)) && (p.obj == "*" || r.obj == p.obj) && (p.act == "*" || r.act == p.act)
+`

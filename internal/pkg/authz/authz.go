@@ -7,7 +7,6 @@ import (
 	"helloworld/internal/pkg/token"
 
 	casbinv3 "github.com/casbin/casbin/v3"
-	"github.com/casbin/casbin/v3/model"
 	kratoserrors "github.com/go-kratos/kratos/v3/errors"
 	"github.com/go-kratos/kratos/v3/middleware"
 	"github.com/go-kratos/kratos/v3/transport"
@@ -122,19 +121,6 @@ func NewSecurityUser(ctx context.Context) (*SecurityUser, error) {
 	}, nil
 }
 
-func NewCasbinEnforcer() (*casbinv3.Enforcer, error) {
-	m, err := model.NewModelFromString(casbinModel)
-	if err != nil {
-		return nil, err
-	}
-	enforcer, err := casbinv3.NewEnforcer(m)
-	if err != nil {
-		return nil, err
-	}
-	_, err = enforcer.AddPolicy(RoleAdmin, "*", "*")
-	return enforcer, err
-}
-
 func bearerTokenFromContext(ctx context.Context) (string, bool) {
 	tr, ok := transport.FromServerContext(ctx)
 	if !ok || tr.RequestHeader() == nil {
@@ -147,20 +133,3 @@ func bearerTokenFromContext(ctx context.Context) (string, bool) {
 	}
 	return strings.TrimSpace(parts[1]), true
 }
-
-const casbinModel = `
-[request_definition]
-r = sub, obj, act
-
-[policy_definition]
-p = sub, obj, act
-
-[role_definition]
-g = _, _
-
-[policy_effect]
-e = some(where (p.eft == allow))
-
-[matchers]
-m = (r.sub == p.sub || g(r.sub, p.sub)) && (p.obj == "*" || r.obj == p.obj) && (p.act == "*" || r.act == p.act)
-`
