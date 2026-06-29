@@ -3,15 +3,17 @@ package data
 import (
 	"cmp"
 	"context"
+	"log/slog"
 	"slices"
 	"sync"
 	"time"
 
 	"helloworld/internal/biz"
+	"helloworld/internal/data/base"
 )
 
 type todoRepo struct {
-	data *Data
+	*base.Repo
 
 	mu     sync.RWMutex
 	nextID int64
@@ -19,9 +21,9 @@ type todoRepo struct {
 }
 
 // NewTodoRepo creates a new TodoRepo instance.
-func NewTodoRepo(data *Data) biz.TodoRepo {
+func NewTodoRepo(data *base.Data, logger *slog.Logger) biz.TodoRepo {
 	return &todoRepo{
-		data:   data,
+		Repo:   base.NewRepo(data, logger, "data/todo"),
 		nextID: 1,
 		todos:  make(map[int64]*biz.Todo),
 	}

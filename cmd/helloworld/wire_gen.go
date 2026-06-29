@@ -11,6 +11,7 @@ import (
 	"helloworld/internal/biz"
 	"helloworld/internal/conf"
 	"helloworld/internal/data"
+	"helloworld/internal/data/base"
 	"helloworld/internal/dep"
 	"helloworld/internal/server"
 	"helloworld/internal/service"
@@ -43,14 +44,14 @@ func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, logg
 		cleanup()
 		return nil, nil, err
 	}
-	dataData, err := data.NewData(db, client)
+	baseData, err := base.NewData(db, client, enforcer)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	todoRepo := data.NewTodoRepo(dataData)
-	todoUsecase := biz.NewTodoUsecase(todoRepo)
+	todoRepo := data.NewTodoRepo(baseData, logger)
+	todoUsecase := biz.NewTodoUsecase(todoRepo, logger)
 	todoService := service.NewTodoService(todoUsecase)
 	grpcServer := server.NewGRPCServer(confServer, middleware, logger, todoService)
 	httpServer := server.NewHTTPServer(confServer, middleware, logger, todoService)

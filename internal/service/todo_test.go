@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"io"
+	"log/slog"
 	"testing"
 
 	v1 "helloworld/api/todo/v1"
@@ -15,8 +16,9 @@ import (
 )
 
 func newTestTodoService() *TodoService {
-	repo := data.NewTodoRepo(&data.Data{})
-	uc := biz.NewTodoUsecase(repo)
+	logger := slog.Default()
+	repo := data.NewTodoRepo(&data.Data{}, logger)
+	uc := biz.NewTodoUsecase(repo, logger)
 	return NewTodoService(uc)
 }
 
