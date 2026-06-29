@@ -11,6 +11,7 @@ import (
 	"github.com/go-kratos/kratos/v3/transport"
 )
 
+// TestJWTAndCasbinMiddleware 验证 JWT 认证和 Casbin 授权通过后会注入当前用户。
 func TestJWTAndCasbinMiddleware(t *testing.T) {
 	manager, err := token.NewManager("", time.Minute, time.Hour)
 	if err != nil {
@@ -44,6 +45,7 @@ func TestJWTAndCasbinMiddleware(t *testing.T) {
 	}
 }
 
+// TestJWTAndCasbinMiddlewareRejectsMissingToken 验证缺少令牌时中间件会拒绝请求。
 func TestJWTAndCasbinMiddlewareRejectsMissingToken(t *testing.T) {
 	manager, err := token.NewManager("", time.Minute, time.Hour)
 	if err != nil {

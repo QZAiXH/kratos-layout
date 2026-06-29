@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// TestManagerGenerateAndValidateAccessToken 验证管理器能签发并校验访问令牌。
 func TestManagerGenerateAndValidateAccessToken(t *testing.T) {
 	manager, err := NewManager("", time.Minute, time.Hour)
 	if err != nil {
@@ -25,6 +26,7 @@ func TestManagerGenerateAndValidateAccessToken(t *testing.T) {
 	}
 }
 
+// TestManagerRejectsInvalidAccessToken 验证无效访问令牌会被拒绝。
 func TestManagerRejectsInvalidAccessToken(t *testing.T) {
 	manager, err := NewManager("", time.Minute, time.Hour)
 	if err != nil {

@@ -2,12 +2,14 @@ GOHOSTOS:=$(shell go env GOHOSTOS)
 GOPATH:=$(shell go env GOPATH)
 APP?=helloworld
 VERSION?=$(shell git describe --tags --always 2>/dev/null || echo dev)
+GOLANGCI_LINT_VERSION?=v2.8.0
 
 .PHONY: init
 # init env
 init:
 	go install github.com/google/wire/cmd/wire@latest
 	go install github.com/bufbuild/buf/cmd/buf@latest
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
 
 .PHONY: config
 # generate internal proto
@@ -33,6 +35,11 @@ run:
 # run tests
 test:
 	go test ./...
+
+.PHONY: lint
+# run lint
+lint:
+	golangci-lint run
 
 .PHONY: generate
 # generate

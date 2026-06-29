@@ -19,6 +19,7 @@ type copyDst struct {
 	Status   int32
 }
 
+// TestCopyToDTO 验证同名字段复制会处理空指针和基础类型转换。
 func TestCopyToDTO(t *testing.T) {
 	dst, err := CopyToDTO[copySrc, copyDst](nil)
 	if err != nil {
@@ -37,6 +38,7 @@ func TestCopyToDTO(t *testing.T) {
 	}
 }
 
+// TestCopyToDTOWithFieldNameMapping 验证字段名映射能复制语义相同但名称不同的字段。
 func TestCopyToDTOWithFieldNameMapping(t *testing.T) {
 	type mappingSrc struct {
 		UserID string
@@ -58,6 +60,7 @@ func TestCopyToDTOWithFieldNameMapping(t *testing.T) {
 	}
 }
 
+// TestCopySliceToDTO 验证切片复制会保留空元素并转换普通元素。
 func TestCopySliceToDTO(t *testing.T) {
 	nickname := "A"
 	dst, err := CopySliceToDTO[copySrc, copyDst]([]*copySrc{

@@ -8,6 +8,7 @@ import (
 	"testing"
 )
 
+// TestMaskPassword 验证日志文本中的密码片段会被脱敏。
 func TestMaskPassword(t *testing.T) {
 	got := MaskPassword(`login password:"secret" ok`)
 	if strings.Contains(got, "secret") || !strings.Contains(got, "password:\"******\"") {
@@ -15,6 +16,7 @@ func TestMaskPassword(t *testing.T) {
 	}
 }
 
+// TestHandlerWritesJSONAndMasksPasswordField 验证 zap 处理器写入 JSON 并脱敏密码字段。
 func TestHandlerWritesJSONAndMasksPasswordField(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "app.log")
 	handler, cleanup, err := NewHandler(WithFilePath(path), WithLevel("debug"))

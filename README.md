@@ -24,6 +24,7 @@ go mod edit -module github.com/your-org/your-service
 
 ```bash
 make all
+make lint
 make test
 ```
 
@@ -34,11 +35,13 @@ make test
 - OpenAPI generation.
 - Wire-based dependency injection.
 - Layered `service`, `biz`, and `data` packages.
+- Config-driven SQL database and Redis clients in `internal/data`.
 - JWT access/refresh token helpers and Casbin middleware.
 - `typecatch` helpers for simple same-name structure copying.
 - Zap-backed structured logging with optional file rotation.
 - A lightweight in-memory repository for the sample resource.
 - Unit tests for the service layer.
+- A test guard that requires Chinese comments on Go test cases.
 - Server-streaming and bidirectional-streaming examples.
 - Project agent instructions in `AGENTS.md`.
 - Kratos agent skills in `.agents/skills`.
@@ -70,9 +73,10 @@ The sample CRUD API demonstrates common conventions for Kratos projects:
 - Partial updates with `google.protobuf.FieldMask` and `fieldmask.Update`.
 - Streaming RPC definitions for one-way and bidirectional streams.
 
-The in-memory data layer intentionally stays simple. It demonstrates flow across
-layers, but does not implement a full query engine. Real repositories can apply
-parsed filters and ordering in SQL, Ent, or another storage layer.
+The sample Todo repository intentionally stays in-memory. It demonstrates flow
+across layers, but does not implement a full query engine. Real repositories can
+use the shared SQL/Redis clients from `internal/data` and apply parsed filters
+and ordering in SQL, Ent, or another storage layer.
 
 ## Auth Template Practices
 
@@ -128,6 +132,12 @@ Test:
 
 ```bash
 make test
+```
+
+Lint:
+
+```bash
+make lint
 ```
 
 Run:

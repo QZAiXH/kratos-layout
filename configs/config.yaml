@@ -10,6 +10,7 @@ data:
     driver: mysql
     source: root:root@tcp(127.0.0.1:3306)/test?parseTime=True&loc=Local
   redis:
+    password: ""
     addr: 127.0.0.1:6379
     read_timeout: 0.2s
     write_timeout: 0.2s

@@ -13,8 +13,8 @@ and a small in-memory Todo CRUD example.
 - Current app entrypoint: `cmd/helloworld`.
 - Current sample API: `api/todo/v1`.
 - There is no frontend app in this repository.
-- The data layer is intentionally in-memory. Replace it with SQL, Ent, Redis,
-  or another storage backend only when a real service needs it.
+- The data layer wires generic SQL and Redis clients from config. The sample
+  Todo repository is intentionally in-memory.
 - JWT, Casbin, zaplog, and same-name type copying live under `internal/pkg`.
 
 ## Project Skills
@@ -41,15 +41,16 @@ make generate   # Run go generate and go mod tidy
 make all        # api + config + generate
 make build      # Compile ./cmd/helloworld to ./bin/helloworld
 make run        # Run the service with ./configs
+make lint       # Run golangci-lint
 make test       # Run go test ./...
 
 # Direct run
 go run ./cmd/helloworld -conf ./configs
 ```
 
-Run `make all` after proto, config proto, or Wire provider changes. Run the
-smallest relevant `go test` package for code changes; use `make test` when
-shared behavior changed.
+Run `make all` after proto, config proto, or Wire provider changes. Run
+`make lint` after Go code changes. Run the smallest relevant `go test` package
+for code changes; use `make test` when shared behavior changed.
 
 ## Project Structure
 
@@ -179,13 +180,18 @@ When creating a new service from this template:
 6. Update `configs/config.yaml`; never put real credentials in the template.
 7. Set `auth.private_key_path` to a real PKCS8 Ed25519 private key path before
    production use; the empty default creates an ephemeral key for local startup.
-8. Build, run, and test with `make build`, `make run`, and `make test`.
+8. Build, lint, run, and test with `make build`, `make lint`, `make run`, and
+   `make test`.
 
 ## Testing Seam
 
 Tests live beside the code they cover (`*_test.go`). Test layers in isolation:
 service tests fake or compose a usecase, biz tests fake the repo, and data tests
 exercise repo implementations at the storage boundary.
+
+Every top-level `Test...` function and every `t.Run` subcase must have a
+nearby Chinese `//` comment explaining the scenario. The
+`internal/pkg/testcommentcheck` guard enforces this through `make test`.
 
 For non-trivial logic, leave the smallest runnable check that would fail if the
 logic regresses.
@@ -229,5 +235,6 @@ Regenerate from source files with `make api`, `make config`, or `make all`.
 
 - Read the relevant skill under `.agents/skills/`.
 - Run generation commands when proto, config proto, or Wire providers changed.
+- Run `make lint` after Go code changes.
 - Run targeted tests; broaden to `make test` for shared behavior.
 - Inspect changed files and ensure generated files changed only as expected.

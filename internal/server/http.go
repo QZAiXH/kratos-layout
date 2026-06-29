@@ -3,14 +3,15 @@ package server
 import (
 	"log/slog"
 
+	v1 "helloworld/api/todo/v1"
+	"helloworld/internal/conf"
+	"helloworld/internal/service"
+
 	"github.com/go-kratos/kratos/v3/middleware"
 	"github.com/go-kratos/kratos/v3/middleware/logging"
 	"github.com/go-kratos/kratos/v3/middleware/recovery"
 	"github.com/go-kratos/kratos/v3/middleware/validate"
 	"github.com/go-kratos/kratos/v3/transport/http"
-	v1 "helloworld/api/todo/v1"
-	"helloworld/internal/conf"
-	"helloworld/internal/service"
 
 	"go.einride.tech/aip/fieldbehavior"
 	"google.golang.org/protobuf/proto"
