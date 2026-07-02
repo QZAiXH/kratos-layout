@@ -21,7 +21,9 @@ description: Use when adding or changing protobuf contracts, generated HTTP/gRPC
 - Proto is the source of truth.
 - Proto services, RPCs, messages, fields, enums, and enum values must have Chinese comments because they feed the OpenAPI publisher.
 - For a non-trivial module, put shared request/result structs and status constants in `internal/biz/<module>/types.go`; if it grows, split by purpose inside the same module. Do not add `internal/dto`.
-- Keep `UseCase`, `Repo`, Provider interfaces, and constructors in `internal/biz/<module>/use_case.go`.
+- Keep only `UseCase`, dependency fields, `Repo`, Provider interfaces, and constructors in `internal/biz/<module>/use_case.go`; put use case methods in `command.go`, `query.go`, `stream.go`, or `job.go`.
+- Keep only `Service`, generated server embedding, and `NewService` in `internal/service/<module>/service.go`; put RPC methods in `command.go`, `query.go`, or `stream.go`, and proto/biz conversion in `mapper.go`.
+- Keep top-level `internal/{biz,data,service}/provider.go` files limited to Wire provider sets, binds, simple aliases, and imports.
 - Handwritten Go functions, methods, interfaces, interface methods, structs, and every struct field must have Chinese comments.
 - Use generated operation constants for auth whitelist/policy decisions.
 - Do not hand-write normal HTTP business routes when proto generation covers the route.

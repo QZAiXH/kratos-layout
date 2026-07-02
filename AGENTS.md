@@ -85,7 +85,7 @@ make proto-ide # 导出 GoLand 等 IDE 使用的 proto import 缓存
 
 ```text
 internal/biz/order/
-  use_case.go   # UseCase、Repo interface、跨模块 Provider interface、构造函数
+  use_case.go   # UseCase、Repo interface、跨模块 Provider interface、构造函数；不写业务方法
   types.go      # 模块共享请求/结果类型、状态常量、值对象；不要另建 internal/dto
   errors.go     # 模块私有 sentinel 或错误 helper；公开 API 错误仍从 proto error reason 生成
   command.go    # 写操作编排
@@ -93,14 +93,29 @@ internal/biz/order/
   validate.go   # 复杂校验
 
 internal/data/order/
-  repo.go       # repo struct、NewRepo、biz Repo interface 实现
-  store.go      # 底层 Ent/Redis store interface 或组合
+  repo.go       # repo struct、NewRepo、依赖字段；不写 CRUD/查询实现
+  command.go    # 写操作 Repo 方法实现
+  query.go      # 读操作 Repo 方法实现
+  mapper.go     # Ent/Redis/外部数据与 biz 类型转换
+  store.go      # 底层 Ent/Redis store interface 或组合，按需创建
 
 internal/service/order/
-  service.go    # Service struct、NewService、proto service 方法实现
+  service.go    # Service struct、NewService；不写 RPC 方法
+  command.go    # 写操作 RPC 方法
+  query.go      # 读操作 RPC 方法
+  stream.go     # SSE/gRPC stream 方法
+  mapper.go     # proto 与 biz 类型转换
 ```
 
 模块很小时也保留目录结构，未用到的文件不要提前创建。
+
+入口文件职责边界：
+
+- `internal/{biz,data,service}/provider.go` 只允许放 `ProviderSet`、Wire bind、必要类型别名和 import；不要写构造逻辑、业务逻辑、存储逻辑、接口方法或 helper。
+- `internal/biz/<module>/use_case.go` 只允许放 `UseCase` 结构体、注入字段、`Repo`/窄 Provider interface 和 `NewUseCase`；业务方法放 `command.go`、`query.go`、`stream.go`、`job.go`，校验放 `validate.go`，错误放 `errors.go`。
+- `internal/data/<module>/repo.go` 只允许放 repo 结构体、依赖字段和 `NewRepo`；Ent/Redis 查询、事务、CRUD 方法、数据转换 helper 分别放 `query.go`、`command.go`、`store.go`、`cache.go`、`mapper.go`。
+- `internal/service/<module>/service.go` 只允许放 `Service` 结构体、嵌入的 generated server 和 `NewService`；RPC 方法放 `command.go`、`query.go`、`stream.go`，proto/biz 转换放 `mapper.go`。
+- 给入口文件新增内容前先判断是否属于“结构体、接口、构造、Wire 聚合”；不属于就新建同模块职责文件，不要把实现堆进入口文件。
 
 结构体组织规则：
 

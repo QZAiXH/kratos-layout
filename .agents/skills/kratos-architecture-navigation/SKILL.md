@@ -31,17 +31,19 @@ description: Use before non-trivial Kratos template work, feature design, issue 
 
 - Keep modules in matching directories even when small: `internal/biz/<module>`, `internal/data/<module>`, `internal/service/<module>`.
 - In `internal/biz/<module>`, use:
-  - `use_case.go` for `UseCase`, `Repo`, narrow cross-module Provider interfaces, constructors.
+  - `use_case.go` only for `UseCase`, dependency fields, `Repo`, narrow cross-module Provider interfaces, and constructors. Do not add business method bodies there.
   - `types.go` for module request/result/value types and status constants. If it grows, split by purpose inside the same module, such as `request.go`, `result.go`, `model.go`, or `status.go`.
   - action files such as `command.go`, `query.go`, `validate.go`, `stream.go`, `job.go` as the module grows.
-- In `internal/data/<module>`, use `repo.go` for the repo struct, `NewRepo`, and the biz `Repo` implementation; split Ent/Redis details into store files only when needed.
-- In `internal/service/<module>`, use `service.go` for the service struct, `NewService`, and proto service methods.
+- In `internal/data/<module>`, use `repo.go` only for the repo struct, dependency fields, and `NewRepo`. Put repo methods in `command.go` and `query.go`; put Ent/Redis details in `store.go`, `cache.go`, or `mapper.go`.
+- In `internal/service/<module>`, use `service.go` only for the service struct and `NewService`. Put RPC methods in `command.go`, `query.go`, or `stream.go`; put proto/biz conversion in `mapper.go`.
+- Top-level `internal/{biz,data,service}/provider.go` files only aggregate Wire provider sets, binds, simple aliases, and imports.
 - Put cross-module Provider interfaces in the consuming biz module. Bind implementations in the top-level provider set.
 
 ## Do Not
 
 - Do not pass Ent entities across layer boundaries.
 - Do not put business logic in service handlers.
+- Do not add CRUD, query, stream, mapping, validation, or transaction logic to `provider.go`, `use_case.go`, `repo.go`, or `service.go` entry files.
 - Do not hand-edit generated files.
 - Do not add a central DTO package; keep shared structs in the owning biz module.
 - Do not add cloud/vendor-specific code to the main template unless it is required by most generated projects.
