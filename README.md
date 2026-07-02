@@ -40,8 +40,11 @@ make init
 make all
 make openapi
 go test ./...
+make lint
 make run
 ```
+
+`make lint` 会先生成 `bin/golangci-lint` 自定义二进制，用于加载本模板的 `cncomment` 中文注释检查插件；不要直接使用系统里的 `golangci-lint run` 跑本仓库配置。
 
 ## Ent Schema
 

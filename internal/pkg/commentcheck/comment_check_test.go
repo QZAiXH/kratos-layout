@@ -109,7 +109,7 @@ func shouldSkipDir(root, path string) bool {
 	}
 	rel := filepath.ToSlash(mustRel(root, path))
 	name := filepath.Base(path)
-	if strings.HasPrefix(name, ".") || name == "bin" || name == "third_party" {
+	if strings.HasPrefix(name, ".") || name == "bin" || name == "third_party" || name == "testdata" {
 		return true
 	}
 	if strings.HasPrefix(rel, "internal/data/ent/") && !strings.HasPrefix(rel, "internal/data/ent/schema") {

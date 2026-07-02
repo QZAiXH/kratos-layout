@@ -9,6 +9,7 @@ linters:
   enable:
     - bidichk
     - bodyclose
+    - cncomment
     - errcheck
     - errorlint
     - govet
@@ -18,6 +19,10 @@ linters:
     - staticcheck
     - unused
   settings:
+    custom:
+      cncomment:
+        type: module
+        description: require Chinese comments on exported Go API
     govet:
       enable:
         - appends

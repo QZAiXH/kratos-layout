@@ -2,8 +2,10 @@ GOHOSTOS:=$(shell go env GOHOSTOS)
 GOPATH:=$(shell go env GOPATH)
 VERSION?=$(shell git describe --tags --always 2>/dev/null || echo dev)
 CMD_DIR?=$(shell find ./cmd -mindepth 1 -maxdepth 1 -type d | head -1)
+GOLANGCI_LINT?=./bin/golangci-lint
 PROTO_IDE_DEPS_DIR?=.proto-deps
 PROTO_IDE_GOOGLEAPIS_REF?=$(shell awk '/name: buf.build\/googleapis\/googleapis/{found=1} found && /commit:/ {print $$2; exit}' buf.lock)
+CNCOMMENT_FILES:=$(shell find ./tools/cncomment -type f 2>/dev/null)
 
 .PHONY: init
 # init env
@@ -47,11 +49,18 @@ run:
 # run tests
 test:
 	go test ./...
+	cd tools/cncomment && go test ./...
 
-.PHONY: lint
+.PHONY: lint lint-custom
 # run lint
-lint:
-	golangci-lint run
+lint: lint-custom
+	$(GOLANGCI_LINT) run
+
+$(GOLANGCI_LINT): .custom-gcl.yml $(CNCOMMENT_FILES)
+	golangci-lint custom
+
+# build custom golangci-lint with local linters
+lint-custom: $(GOLANGCI_LINT)
 
 .PHONY: proto-ide
 # export proto deps for IDE import paths

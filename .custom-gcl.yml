@@ -1,0 +1,6 @@
+version: v2.8.0
+name: golangci-lint
+destination: ./bin
+plugins:
+  - module: github.com/QZAiXH/kratos-layout/tools/cncomment
+    path: ./tools/cncomment
