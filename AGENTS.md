@@ -81,15 +81,7 @@ make proto-ide # 导出 GoLand 等 IDE 使用的 proto import 缓存
 
 ### 模块内分层
 
-简单模块先平铺，文件少时不要提前建目录：
-
-```text
-internal/biz/todo.go
-internal/data/todo.go
-internal/service/todo.go
-```
-
-模块变复杂后拆成同名目录：
+业务模块默认使用同名目录，三层保持同一模块名：
 
 ```text
 internal/biz/order/
@@ -99,7 +91,16 @@ internal/biz/order/
   command.go    # 写操作编排
   query.go      # 读操作编排
   validate.go   # 复杂校验
+
+internal/data/order/
+  repo.go       # repo struct、NewRepo、biz Repo interface 实现
+  store.go      # 底层 Ent/Redis store interface 或组合
+
+internal/service/order/
+  service.go    # Service struct、NewService、proto service 方法实现
 ```
+
+模块很小时也保留目录结构，未用到的文件不要提前创建。
 
 结构体组织规则：
 
@@ -108,7 +109,7 @@ internal/biz/order/
 - `types.go` 明显变大后，在同一模块目录按用途拆成 `request.go`、`result.go`、`model.go`、`status.go` 等；不要迁到 `internal/dto`。
 - data 层不要把 Ent entity 传出层边界，先映射成对应 biz 模块类型。
 
-`internal/service/<module>/` 和 `internal/data/<module>/` 跟随同一模块名；service 只做 proto 与 biz 模块类型转换，data 只实现 biz 的 Repo interface。跨模块调用用窄 Provider interface 放在消费方 biz 模块，不直接 import 对方 data。
+`internal/service/<module>/` 和 `internal/data/<module>/` 跟随同一模块名；service 只做 proto 与 biz 模块类型转换，data 只实现 biz 的 Repo interface。跨模块调用用窄 Provider interface 放在消费方 biz 模块，不直接 import 对方 data。各层顶层 `provider.go` 只汇总模块构造函数和必要的 Wire bind。
 
 错误处理规则：
 

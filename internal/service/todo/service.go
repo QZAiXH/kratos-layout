@@ -1,4 +1,4 @@
-package service
+package todo
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"time"
 
 	v1 "github.com/QZAiXH/kratos-layout/api/todo/v1"
-	"github.com/QZAiXH/kratos-layout/internal/biz"
+	todobiz "github.com/QZAiXH/kratos-layout/internal/biz/todo"
 
 	"go.einride.tech/aip/fieldmask"
 	"go.einride.tech/aip/filtering"
@@ -22,20 +22,20 @@ const (
 	defaultPageSize = 20
 )
 
-// TodoService 实现待办事项 API 服务。
-type TodoService struct {
+// Service 实现待办事项 API 服务。
+type Service struct {
 	v1.UnimplementedTodoServiceServer // UnimplementedTodoServiceServer 保持向前兼容的 gRPC 嵌入实现。
 
-	uc *biz.TodoUsecase // uc 是待办事项业务用例。
+	uc *todobiz.UseCase // uc 是待办事项业务用例。
 }
 
-// NewTodoService 创建待办事项服务。
-func NewTodoService(uc *biz.TodoUsecase) *TodoService {
-	return &TodoService{uc: uc}
+// NewService 创建待办事项服务。
+func NewService(uc *todobiz.UseCase) *Service {
+	return &Service{uc: uc}
 }
 
 // CreateTodo 创建待办事项。
-func (s *TodoService) CreateTodo(ctx context.Context, req *v1.CreateTodoRequest) (*v1.Todo, error) {
+func (s *Service) CreateTodo(ctx context.Context, req *v1.CreateTodoRequest) (*v1.Todo, error) {
 	todo, err := s.uc.CreateTodo(ctx, convertTodo(req.GetTodo()))
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (s *TodoService) CreateTodo(ctx context.Context, req *v1.CreateTodoRequest)
 }
 
 // GetTodo 根据编号返回待办事项。
-func (s *TodoService) GetTodo(ctx context.Context, req *v1.GetTodoRequest) (*v1.Todo, error) {
+func (s *Service) GetTodo(ctx context.Context, req *v1.GetTodoRequest) (*v1.Todo, error) {
 	todo, err := s.uc.GetTodo(ctx, req.GetId())
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (s *TodoService) GetTodo(ctx context.Context, req *v1.GetTodoRequest) (*v1.
 }
 
 // ListTodos 返回待办事项列表。
-func (s *TodoService) ListTodos(ctx context.Context, req *v1.ListTodosRequest) (*v1.TodoSet, error) {
+func (s *Service) ListTodos(ctx context.Context, req *v1.ListTodosRequest) (*v1.TodoSet, error) {
 	declarations, err := filtering.NewDeclarations(
 		filtering.DeclareStandardFunctions(),
 		filtering.DeclareIdent("id", filtering.TypeInt),
@@ -85,10 +85,10 @@ func (s *TodoService) ListTodos(ctx context.Context, req *v1.ListTodosRequest) (
 		req.PageSize = defaultPageSize
 	}
 	todos, err := s.uc.ListTodos(ctx,
-		biz.ListFilter(filter),
-		biz.ListOrderBy(orderBy),
-		biz.ListLimit(int(req.PageSize)),
-		biz.ListOffset(int(pageToken.Offset)),
+		todobiz.ListFilter(filter),
+		todobiz.ListOrderBy(orderBy),
+		todobiz.ListLimit(int(req.PageSize)),
+		todobiz.ListOffset(int(pageToken.Offset)),
 	)
 	if err != nil {
 		return nil, err
@@ -106,9 +106,9 @@ func (s *TodoService) ListTodos(ctx context.Context, req *v1.ListTodosRequest) (
 }
 
 // UpdateTodo 更新待办事项。
-func (s *TodoService) UpdateTodo(ctx context.Context, req *v1.UpdateTodoRequest) (*v1.Todo, error) {
+func (s *Service) UpdateTodo(ctx context.Context, req *v1.UpdateTodoRequest) (*v1.Todo, error) {
 	if req.GetTodo().GetId() <= 0 || req.GetUpdateMask() == nil || len(req.GetUpdateMask().GetPaths()) == 0 {
-		return nil, biz.ErrTodoInvalidArgument
+		return nil, todobiz.ErrTodoInvalidArgument
 	}
 	current, err := s.GetTodo(ctx, &v1.GetTodoRequest{Id: req.GetTodo().GetId()})
 	if err != nil {
@@ -123,7 +123,7 @@ func (s *TodoService) UpdateTodo(ctx context.Context, req *v1.UpdateTodoRequest)
 }
 
 // DeleteTodo 删除待办事项。
-func (s *TodoService) DeleteTodo(ctx context.Context, req *v1.DeleteTodoRequest) (*emptypb.Empty, error) {
+func (s *Service) DeleteTodo(ctx context.Context, req *v1.DeleteTodoRequest) (*emptypb.Empty, error) {
 	if err := s.uc.DeleteTodo(ctx, req.GetId()); err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ func (s *TodoService) DeleteTodo(ctx context.Context, req *v1.DeleteTodoRequest)
 }
 
 // WatchTodos 通过服务端流发送待办事项快照。
-func (s *TodoService) WatchTodos(req *v1.WatchTodosRequest, stream v1.TodoService_WatchTodosServer) error {
+func (s *Service) WatchTodos(req *v1.WatchTodosRequest, stream v1.TodoService_WatchTodosServer) error {
 	declarations, err := filtering.NewDeclarations(
 		filtering.DeclareStandardFunctions(),
 		filtering.DeclareIdent("id", filtering.TypeInt),
@@ -163,10 +163,10 @@ func (s *TodoService) WatchTodos(req *v1.WatchTodosRequest, stream v1.TodoServic
 		req.PageSize = defaultPageSize
 	}
 	todos, err := s.uc.ListTodos(stream.Context(),
-		biz.ListFilter(filter),
-		biz.ListOrderBy(orderBy),
-		biz.ListLimit(int(req.PageSize)),
-		biz.ListOffset(int(pageToken.Offset)),
+		todobiz.ListFilter(filter),
+		todobiz.ListOrderBy(orderBy),
+		todobiz.ListLimit(int(req.PageSize)),
+		todobiz.ListOffset(int(pageToken.Offset)),
 	)
 	if err != nil {
 		return err
@@ -180,7 +180,7 @@ func (s *TodoService) WatchTodos(req *v1.WatchTodosRequest, stream v1.TodoServic
 }
 
 // SyncTodos 通过双向流交换待办事项变更。
-func (s *TodoService) SyncTodos(stream v1.TodoService_SyncTodosServer) error {
+func (s *Service) SyncTodos(stream v1.TodoService_SyncTodosServer) error {
 	for {
 		req, err := stream.Recv()
 		if errors.Is(err, io.EOF) {
@@ -221,7 +221,7 @@ func (s *TodoService) SyncTodos(stream v1.TodoService_SyncTodosServer) error {
 				Type:      v1.TodoEventType_TODO_EVENT_TYPE_DELETED,
 			}
 		default:
-			return biz.ErrTodoInvalidArgument
+			return todobiz.ErrTodoInvalidArgument
 		}
 		if err := stream.Send(event); err != nil {
 			return err
@@ -230,11 +230,11 @@ func (s *TodoService) SyncTodos(stream v1.TodoService_SyncTodosServer) error {
 }
 
 // convertTodo 将 API 待办事项转换为业务对象。
-func convertTodo(in *v1.Todo) *biz.Todo {
+func convertTodo(in *v1.Todo) *todobiz.Todo {
 	if in == nil {
 		return nil
 	}
-	return &biz.Todo{
+	return &todobiz.Todo{
 		ID:        in.GetId(),
 		Title:     in.GetTitle(),
 		Content:   in.GetContent(),
@@ -243,7 +243,7 @@ func convertTodo(in *v1.Todo) *biz.Todo {
 }
 
 // newTodoEvent 创建待办事项流式事件。
-func newTodoEvent(action string, todo *biz.Todo) *v1.TodoEvent {
+func newTodoEvent(action string, todo *todobiz.Todo) *v1.TodoEvent {
 	return &v1.TodoEvent{
 		Action:    action,
 		Todo:      convertTodoReply(todo),
@@ -269,7 +269,7 @@ func todoEventType(action string) v1.TodoEventType {
 }
 
 // convertTodoReply 将业务对象转换为 API 待办事项。
-func convertTodoReply(in *biz.Todo) *v1.Todo {
+func convertTodoReply(in *todobiz.Todo) *v1.Todo {
 	if in == nil {
 		return nil
 	}

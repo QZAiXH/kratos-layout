@@ -5,7 +5,7 @@ import (
 
 	v1 "github.com/QZAiXH/kratos-layout/api/todo/v1"
 	"github.com/QZAiXH/kratos-layout/internal/conf"
-	"github.com/QZAiXH/kratos-layout/internal/service"
+	todoservice "github.com/QZAiXH/kratos-layout/internal/service/todo"
 	"github.com/go-kratos/kratos/v3/middleware"
 	"github.com/go-kratos/kratos/v3/middleware/logging"
 	"github.com/go-kratos/kratos/v3/middleware/recovery"
@@ -18,7 +18,7 @@ import (
 )
 
 // NewHTTPServer 创建 HTTP 服务并注册业务路由。
-func NewHTTPServer(c *conf.Server, security middleware.Middleware, logger *slog.Logger, todo *service.TodoService) *http.Server {
+func NewHTTPServer(c *conf.Server, security middleware.Middleware, logger *slog.Logger, todo *todoservice.Service) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),

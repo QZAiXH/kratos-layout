@@ -5,7 +5,7 @@ import (
 
 	v1 "github.com/QZAiXH/kratos-layout/api/todo/v1"
 	"github.com/QZAiXH/kratos-layout/internal/conf"
-	"github.com/QZAiXH/kratos-layout/internal/service"
+	todoservice "github.com/QZAiXH/kratos-layout/internal/service/todo"
 
 	"github.com/go-kratos/kratos/v3/middleware"
 	"github.com/go-kratos/kratos/v3/middleware/logging"
@@ -14,7 +14,7 @@ import (
 )
 
 // NewGRPCServer 创建 gRPC 服务并注册业务服务。
-func NewGRPCServer(c *conf.Server, security middleware.Middleware, logger *slog.Logger, todo *service.TodoService) *grpc.Server {
+func NewGRPCServer(c *conf.Server, security middleware.Middleware, logger *slog.Logger, todo *todoservice.Service) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),

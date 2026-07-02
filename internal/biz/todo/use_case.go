@@ -1,4 +1,4 @@
-package biz
+package todo
 
 import (
 	"context"
@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	// ErrTodoNotFound is returned when a todo does not exist.
+	// ErrTodoNotFound 表示待办事项不存在。
 	ErrTodoNotFound = errors.NotFound(v1.ErrorReason_TODO_NOT_FOUND.String(), "todo not found")
-	// ErrTodoInvalidArgument is returned when a todo request is invalid.
+	// ErrTodoInvalidArgument 表示待办事项参数非法。
 	ErrTodoInvalidArgument = errors.BadRequest(v1.ErrorReason_TODO_INVALID_ARGUMENT.String(), "invalid todo argument")
 )
 
@@ -29,8 +29,8 @@ type Todo struct {
 	UpdateTime time.Time // UpdateTime 是更新时间。
 }
 
-// TodoRepo 定义待办事项仓储接口。
-type TodoRepo interface {
+// Repo 定义待办事项仓储接口。
+type Repo interface {
 	// FindByID 根据编号查询待办事项。
 	FindByID(context.Context, int64) (*Todo, error)
 	// ListTodos 按查询选项列出待办事项。
@@ -43,7 +43,7 @@ type TodoRepo interface {
 	DeleteTodo(context.Context, int64) error
 }
 
-// ListOption configures todo list queries.
+// ListOption 配置待办事项列表查询。
 type ListOption func(*ListOptions)
 
 // ListOptions 表示待办事项列表查询选项。
@@ -82,28 +82,28 @@ func ListLimit(limit int) ListOption {
 	}
 }
 
-// TodoUsecase 编排待办事项业务流程。
-type TodoUsecase struct {
-	repo TodoRepo // repo 是待办事项仓储接口。
+// UseCase 编排待办事项业务流程。
+type UseCase struct {
+	repo Repo // repo 是待办事项仓储接口。
 }
 
-// NewTodoUsecase 创建待办事项用例。
-func NewTodoUsecase(repo TodoRepo) *TodoUsecase {
-	return &TodoUsecase{repo: repo}
+// NewUseCase 创建待办事项用例。
+func NewUseCase(repo Repo) *UseCase {
+	return &UseCase{repo: repo}
 }
 
 // GetTodo 根据编号返回待办事项。
-func (uc *TodoUsecase) GetTodo(ctx context.Context, id int64) (*Todo, error) {
+func (uc *UseCase) GetTodo(ctx context.Context, id int64) (*Todo, error) {
 	return uc.repo.FindByID(ctx, id)
 }
 
 // ListTodos 返回待办事项列表。
-func (uc *TodoUsecase) ListTodos(ctx context.Context, opts ...ListOption) ([]*Todo, error) {
+func (uc *UseCase) ListTodos(ctx context.Context, opts ...ListOption) ([]*Todo, error) {
 	return uc.repo.ListTodos(ctx, opts...)
 }
 
 // CreateTodo 创建待办事项。
-func (uc *TodoUsecase) CreateTodo(ctx context.Context, todo *Todo) (*Todo, error) {
+func (uc *UseCase) CreateTodo(ctx context.Context, todo *Todo) (*Todo, error) {
 	if err := validateTodo(todo); err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (uc *TodoUsecase) CreateTodo(ctx context.Context, todo *Todo) (*Todo, error
 }
 
 // UpdateTodo 更新待办事项。
-func (uc *TodoUsecase) UpdateTodo(ctx context.Context, todo *Todo) (*Todo, error) {
+func (uc *UseCase) UpdateTodo(ctx context.Context, todo *Todo) (*Todo, error) {
 	if todo == nil || todo.ID <= 0 {
 		return nil, ErrTodoInvalidArgument
 	}
@@ -122,7 +122,7 @@ func (uc *TodoUsecase) UpdateTodo(ctx context.Context, todo *Todo) (*Todo, error
 }
 
 // DeleteTodo 删除待办事项。
-func (uc *TodoUsecase) DeleteTodo(ctx context.Context, id int64) error {
+func (uc *UseCase) DeleteTodo(ctx context.Context, id int64) error {
 	if id <= 0 {
 		return ErrTodoInvalidArgument
 	}

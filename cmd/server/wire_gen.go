@@ -7,14 +7,14 @@
 package main
 
 import (
-	"github.com/QZAiXH/kratos-layout/internal/biz"
+	todo2 "github.com/QZAiXH/kratos-layout/internal/biz/todo"
 	"github.com/QZAiXH/kratos-layout/internal/conf"
-	"github.com/QZAiXH/kratos-layout/internal/data"
 	"github.com/QZAiXH/kratos-layout/internal/data/base"
+	"github.com/QZAiXH/kratos-layout/internal/data/todo"
 	"github.com/QZAiXH/kratos-layout/internal/dep"
 	"github.com/QZAiXH/kratos-layout/internal/job"
 	"github.com/QZAiXH/kratos-layout/internal/server"
-	"github.com/QZAiXH/kratos-layout/internal/service"
+	todo3 "github.com/QZAiXH/kratos-layout/internal/service/todo"
 	"github.com/go-kratos/kratos/v3"
 	"log/slog"
 )
@@ -25,10 +25,10 @@ import (
 
 // Injectors from wire.go:
 
-// wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, confJob *conf.Job, logger *slog.Logger) (*kratos.App, func(), error) {
+// wireApp 通过 Wire 初始化 Kratos 应用依赖图。
+func wireApp(confServer *conf.Server, data *conf.Data, auth *conf.Auth, confJob *conf.Job, logger *slog.Logger) (*kratos.App, func(), error) {
 	config := job.NewConfig(confJob)
-	client, cleanup, err := dep.NewRedis(confData, logger)
+	client, cleanup, err := dep.NewRedis(data, logger)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -45,22 +45,22 @@ func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, conf
 		return nil, nil, err
 	}
 	middleware := server.NewSecurityMiddleware(manager, enforcer)
-	entClient, cleanup2, err := dep.NewDB(confData, logger)
+	database, cleanup2, err := dep.NewDB(data, logger)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	baseData, err := base.NewData(entClient, client, enforcer)
+	baseData, err := base.NewData(database, client, enforcer)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	todoRepo := data.NewTodoRepo(baseData)
-	todoUsecase := biz.NewTodoUsecase(todoRepo)
-	todoService := service.NewTodoService(todoUsecase)
-	grpcServer := server.NewGRPCServer(confServer, middleware, logger, todoService)
-	httpServer := server.NewHTTPServer(confServer, middleware, logger, todoService)
+	repo := todo.NewRepo(baseData)
+	useCase := todo2.NewUseCase(repo)
+	service := todo3.NewService(useCase)
+	grpcServer := server.NewGRPCServer(confServer, middleware, logger, service)
+	httpServer := server.NewHTTPServer(confServer, middleware, logger, service)
 	app := newApp(logger, runtime, grpcServer, httpServer)
 	return app, func() {
 		cleanup2()

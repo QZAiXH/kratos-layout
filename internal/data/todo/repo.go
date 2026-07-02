@@ -1,4 +1,4 @@
-package data
+package todo
 
 import (
 	"cmp"
@@ -7,62 +7,63 @@ import (
 	"sync"
 	"time"
 
-	"github.com/QZAiXH/kratos-layout/internal/biz"
+	todobiz "github.com/QZAiXH/kratos-layout/internal/biz/todo"
+	"github.com/QZAiXH/kratos-layout/internal/data/base"
 )
 
 // todoRepo 用内存存储实现待办事项仓储。
 type todoRepo struct {
-	data *Data // data 是数据层共享依赖。
+	data *base.Data // data 是数据层共享依赖。
 
-	mu     sync.RWMutex        // mu 保护内存待办事项集合。
-	nextID int64               // nextID 是下一条待办事项编号。
-	todos  map[int64]*biz.Todo // todos 保存待办事项快照。
+	mu     sync.RWMutex            // mu 保护内存待办事项集合。
+	nextID int64                   // nextID 是下一条待办事项编号。
+	todos  map[int64]*todobiz.Todo // todos 保存待办事项快照。
 }
 
-// NewTodoRepo 创建待办事项仓储实例。
-func NewTodoRepo(data *Data) biz.TodoRepo {
+// NewRepo 创建待办事项仓储实例。
+func NewRepo(data *base.Data) todobiz.Repo {
 	return &todoRepo{
 		data:   data,
 		nextID: 1,
-		todos:  make(map[int64]*biz.Todo),
+		todos:  make(map[int64]*todobiz.Todo),
 	}
 }
 
 // FindByID 根据编号查询待办事项。
-func (r *todoRepo) FindByID(_ context.Context, id int64) (*biz.Todo, error) {
+func (r *todoRepo) FindByID(_ context.Context, id int64) (*todobiz.Todo, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	todo, ok := r.todos[id]
 	if !ok {
-		return nil, biz.ErrTodoNotFound
+		return nil, todobiz.ErrTodoNotFound
 	}
 	return cloneTodo(todo), nil
 }
 
 // ListTodos 按查询选项返回待办事项列表。
-func (r *todoRepo) ListTodos(_ context.Context, opts ...biz.ListOption) ([]*biz.Todo, error) {
-	options := biz.ListOptions{Limit: 20}
+func (r *todoRepo) ListTodos(_ context.Context, opts ...todobiz.ListOption) ([]*todobiz.Todo, error) {
+	options := todobiz.ListOptions{Limit: 20}
 	for _, opt := range opts {
 		opt(&options)
 	}
 	if options.Offset < 0 || options.Limit <= 0 {
-		return nil, biz.ErrTodoInvalidArgument
+		return nil, todobiz.ErrTodoInvalidArgument
 	}
 
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	todos := make([]*biz.Todo, 0, len(r.todos))
+	todos := make([]*todobiz.Todo, 0, len(r.todos))
 	for _, todo := range r.todos {
 		todos = append(todos, cloneTodo(todo))
 	}
-	slices.SortFunc(todos, func(a, b *biz.Todo) int {
+	slices.SortFunc(todos, func(a, b *todobiz.Todo) int {
 		return cmp.Compare(a.ID, b.ID)
 	})
 
 	if options.Offset >= len(todos) {
-		return []*biz.Todo{}, nil
+		return []*todobiz.Todo{}, nil
 	}
 	end := options.Offset + options.Limit
 	if end > len(todos) {
@@ -72,7 +73,7 @@ func (r *todoRepo) ListTodos(_ context.Context, opts ...biz.ListOption) ([]*biz.
 }
 
 // CreateTodo 创建待办事项并分配内存编号。
-func (r *todoRepo) CreateTodo(_ context.Context, todo *biz.Todo) (*biz.Todo, error) {
+func (r *todoRepo) CreateTodo(_ context.Context, todo *todobiz.Todo) (*todobiz.Todo, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -87,13 +88,13 @@ func (r *todoRepo) CreateTodo(_ context.Context, todo *biz.Todo) (*biz.Todo, err
 }
 
 // UpdateTodo 更新已存在的待办事项。
-func (r *todoRepo) UpdateTodo(_ context.Context, todo *biz.Todo) (*biz.Todo, error) {
+func (r *todoRepo) UpdateTodo(_ context.Context, todo *todobiz.Todo) (*todobiz.Todo, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	current, ok := r.todos[todo.ID]
 	if !ok {
-		return nil, biz.ErrTodoNotFound
+		return nil, todobiz.ErrTodoNotFound
 	}
 	updated := cloneTodo(todo)
 	updated.CreateTime = current.CreateTime
@@ -108,18 +109,18 @@ func (r *todoRepo) DeleteTodo(_ context.Context, id int64) error {
 	defer r.mu.Unlock()
 
 	if _, ok := r.todos[id]; !ok {
-		return biz.ErrTodoNotFound
+		return todobiz.ErrTodoNotFound
 	}
 	delete(r.todos, id)
 	return nil
 }
 
 // cloneTodo 复制待办事项以避免外部修改内存状态。
-func cloneTodo(todo *biz.Todo) *biz.Todo {
+func cloneTodo(todo *todobiz.Todo) *todobiz.Todo {
 	if todo == nil {
 		return nil
 	}
-	return &biz.Todo{
+	return &todobiz.Todo{
 		ID:         todo.ID,
 		Title:      todo.Title,
 		Content:    todo.Content,

@@ -1,4 +1,4 @@
-package service
+package todo
 
 import (
 	"context"
@@ -6,8 +6,9 @@ import (
 	"testing"
 
 	v1 "github.com/QZAiXH/kratos-layout/api/todo/v1"
-	"github.com/QZAiXH/kratos-layout/internal/biz"
-	"github.com/QZAiXH/kratos-layout/internal/data"
+	todobiz "github.com/QZAiXH/kratos-layout/internal/biz/todo"
+	"github.com/QZAiXH/kratos-layout/internal/data/base"
+	tododata "github.com/QZAiXH/kratos-layout/internal/data/todo"
 
 	kratoserrors "github.com/go-kratos/kratos/v3/errors"
 	"google.golang.org/grpc/metadata"
@@ -15,10 +16,10 @@ import (
 )
 
 // newTestTodoService 创建使用内存仓储的测试服务。
-func newTestTodoService() *TodoService {
-	repo := data.NewTodoRepo(&data.Data{})
-	uc := biz.NewTodoUsecase(repo)
-	return NewTodoService(uc)
+func newTestTodoService() *Service {
+	repo := tododata.NewRepo(&base.Data{})
+	uc := todobiz.NewUseCase(repo)
+	return NewService(uc)
 }
 
 // TestTodoServiceCRUD 验证 Todo 服务完整创建、读取、更新和删除流程。
