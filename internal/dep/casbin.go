@@ -1,7 +1,7 @@
 package dep
 
 import (
-	"helloworld/internal/pkg/authz"
+	"github.com/QZAiXH/kratos-layout/internal/pkg/authz"
 
 	casbinv3 "github.com/casbin/casbin/v3"
 	"github.com/casbin/casbin/v3/model"

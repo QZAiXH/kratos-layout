@@ -1,35 +1,45 @@
 GOHOSTOS:=$(shell go env GOHOSTOS)
 GOPATH:=$(shell go env GOPATH)
-APP?=helloworld
 VERSION?=$(shell git describe --tags --always 2>/dev/null || echo dev)
-GOLANGCI_LINT_VERSION?=v2.8.0
+CMD_DIR?=$(shell find ./cmd -mindepth 1 -maxdepth 1 -type d | head -1)
 
 .PHONY: init
 # init env
 init:
-	go install github.com/google/wire/cmd/wire@latest
+	go install github.com/google/wire/cmd/wire@v0.7.0
 	go install github.com/bufbuild/buf/cmd/buf@latest
-	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
+	go install entgo.io/ent/cmd/ent@v0.14.6
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.8.0
 
 .PHONY: config
 # generate internal proto
 config:
-	buf generate --template buf.gen.config.yaml
+	go run github.com/bufbuild/buf/cmd/buf@latest generate --template buf.gen.config.yaml
 
 .PHONY: api
 # generate api proto
 api:
-	buf generate --template buf.gen.yaml
+	go run github.com/bufbuild/buf/cmd/buf@latest generate --template buf.gen.yaml
+
+.PHONY: openapi
+# generate OpenAPI 3.1 docs
+openapi:
+	go run ./scripts/openapi
+
+.PHONY: ent
+# generate ent code
+ent:
+	go generate ./internal/data/ent
 
 .PHONY: build
 # build
 build:
-	mkdir -p bin/ && go build -ldflags "-X main.Name=$(APP) -X main.Version=$(VERSION)" -o ./bin/$(APP) ./cmd/$(APP)
+	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ $(CMD_DIR)
 
 .PHONY: run
 # run locally
 run:
-	go run ./cmd/$(APP) -conf ./configs
+	go run $(CMD_DIR) -conf ./configs
 
 .PHONY: test
 # run tests
@@ -44,14 +54,16 @@ lint:
 .PHONY: generate
 # generate
 generate:
-	go generate ./...
+	go run github.com/google/wire/cmd/wire@v0.7.0 ./cmd/...
 	go mod tidy
 
 .PHONY: all
 # generate all
 all:
 	$(MAKE) api
+	$(MAKE) openapi
 	$(MAKE) config
+	$(MAKE) ent
 	$(MAKE) generate
 
 # show help

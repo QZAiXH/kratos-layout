@@ -2,12 +2,10 @@ package biz
 
 import (
 	"context"
-	"log/slog"
 	"strings"
 	"time"
 
-	v1 "helloworld/api/todo/v1"
-	"helloworld/internal/biz/base"
+	v1 "github.com/QZAiXH/kratos-layout/api/todo/v1"
 
 	"github.com/go-kratos/kratos/v3/errors"
 	"go.einride.tech/aip/filtering"
@@ -81,16 +79,12 @@ func ListLimit(limit int) ListOption {
 
 // TodoUsecase is a Todo usecase.
 type TodoUsecase struct {
-	*base.UseCase
 	repo TodoRepo
 }
 
 // NewTodoUsecase new a Todo usecase.
-func NewTodoUsecase(repo TodoRepo, logger *slog.Logger) *TodoUsecase {
-	return &TodoUsecase{
-		UseCase: base.NewUseCase(nil, logger, "usecase/todo"),
-		repo:    repo,
-	}
+func NewTodoUsecase(repo TodoRepo) *TodoUsecase {
+	return &TodoUsecase{repo: repo}
 }
 
 // GetTodo returns a todo by ID.

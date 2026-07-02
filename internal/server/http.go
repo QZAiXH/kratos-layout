@@ -3,15 +3,15 @@ package server
 import (
 	"log/slog"
 
-	v1 "helloworld/api/todo/v1"
-	"helloworld/internal/conf"
-	"helloworld/internal/service"
-
+	v1 "github.com/QZAiXH/kratos-layout/api/todo/v1"
+	"github.com/QZAiXH/kratos-layout/internal/conf"
+	"github.com/QZAiXH/kratos-layout/internal/service"
 	"github.com/go-kratos/kratos/v3/middleware"
 	"github.com/go-kratos/kratos/v3/middleware/logging"
 	"github.com/go-kratos/kratos/v3/middleware/recovery"
 	"github.com/go-kratos/kratos/v3/middleware/validate"
 	"github.com/go-kratos/kratos/v3/transport/http"
+	"github.com/gorilla/handlers"
 
 	"go.einride.tech/aip/fieldbehavior"
 	"google.golang.org/protobuf/proto"
@@ -33,15 +33,24 @@ func NewHTTPServer(c *conf.Server, security middleware.Middleware, logger *slog.
 				return nil
 			}),
 		),
+		http.Filter(
+			sseHeaderFilter(todoWatchSSEPath),
+			handlers.CORS(
+				handlers.AllowedHeaders([]string{"Content-Type", "X-Requested-With", "Authorization"}),
+				handlers.AllowedMethods([]string{"GET", "POST", "PATCH", "PUT", "HEAD", "OPTIONS", "DELETE"}),
+				handlers.AllowedOrigins([]string{"*"}),
+			),
+		),
 	}
-	if c.Http.Network != "" {
-		opts = append(opts, http.Network(c.Http.Network))
+	httpConf := c.GetHttp()
+	if httpConf.GetNetwork() != "" {
+		opts = append(opts, http.Network(httpConf.GetNetwork()))
 	}
-	if c.Http.Addr != "" {
-		opts = append(opts, http.Address(c.Http.Addr))
+	if httpConf.GetAddr() != "" {
+		opts = append(opts, http.Address(httpConf.GetAddr()))
 	}
-	if c.Http.Timeout != nil {
-		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
+	if httpConf.GetTimeout() != nil {
+		opts = append(opts, http.Timeout(httpConf.GetTimeout().AsDuration()))
 	}
 	srv := http.NewServer(opts...)
 	v1.RegisterTodoServiceHTTPServer(srv, todo)

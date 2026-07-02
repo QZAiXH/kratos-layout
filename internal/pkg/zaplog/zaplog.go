@@ -31,9 +31,7 @@ func NewHandler(opts ...Option) (slog.Handler, func() error, error) {
 
 	level := zapLevel(options.level)
 	encoder := zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig())
-	cores := []zapcore.Core{
-		zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), level),
-	}
+	cores := []zapcore.Core{zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), level)}
 	cleanupFile := func() error { return nil }
 	if strings.TrimSpace(options.filePath) != "" {
 		writer, cleanup, err := fileWriter(options)
@@ -47,8 +45,8 @@ func NewHandler(opts ...Option) (slog.Handler, func() error, error) {
 	logger := zap.New(zapcore.NewTee(cores...))
 	return &Handler{logger: logger, level: level}, func() error {
 		if err := logger.Sync(); err != nil {
-			errText := err.Error()
-			if !strings.Contains(errText, "invalid argument") && !strings.Contains(errText, "bad file descriptor") {
+			text := err.Error()
+			if !strings.Contains(text, "invalid argument") && !strings.Contains(text, "bad file descriptor") {
 				return err
 			}
 		}
@@ -61,8 +59,7 @@ func (h *Handler) Enabled(_ context.Context, level slog.Level) bool {
 }
 
 func (h *Handler) Handle(_ context.Context, record slog.Record) error {
-	fields := make([]zap.Field, 0, len(h.attrs)+record.NumAttrs()+1)
-	fields = append(fields, h.attrs...)
+	fields := append([]zap.Field(nil), h.attrs...)
 	if src := record.Source(); src != nil {
 		fields = append(fields, zap.String("caller", fmt.Sprintf("%s:%d", filepath.Base(src.File), src.Line)))
 	}
@@ -127,7 +124,7 @@ func attrFields(groups []string, attr slog.Attr) []zap.Field {
 	case slog.KindTime:
 		return []zap.Field{zap.Time(key, attr.Value.Time())}
 	case slog.KindGroup:
-		fields := make([]zap.Field, 0, len(attr.Value.Group()))
+		var fields []zap.Field
 		for _, child := range attr.Value.Group() {
 			fields = append(fields, attrFields(append(append([]string(nil), groups...), attr.Key), child)...)
 		}
@@ -191,7 +188,7 @@ func MaskPassword(input string) string {
 
 func isSecretKey(key string) bool {
 	key = strings.ToLower(key)
-	return strings.Contains(key, "password")
+	return strings.Contains(key, "password") || strings.Contains(key, "secret") || strings.Contains(key, "token")
 }
 
 var _ slog.Handler = (*Handler)(nil)

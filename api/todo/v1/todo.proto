@@ -8,7 +8,7 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "helloworld/api/todo/v1;v1";
+option go_package = "api/todo/v1;v1";
 option java_multiple_files = true;
 option java_package = "io.grpc.examples.todo.v1";
 option java_outer_classname = "TodoProto";
@@ -193,6 +193,20 @@ message SyncTodoRequest {
   google.protobuf.FieldMask update_mask = 4;
 }
 
+// TodoEventType identifies the type of todo change carried by a TodoEvent.
+enum TodoEventType {
+  // Default value used when the event type is unknown.
+  TODO_EVENT_TYPE_UNSPECIFIED = 0;
+  // A todo item was created.
+  TODO_EVENT_TYPE_CREATED = 1;
+  // A todo item was updated.
+  TODO_EVENT_TYPE_UPDATED = 2;
+  // A todo item was deleted.
+  TODO_EVENT_TYPE_DELETED = 3;
+  // A snapshot event emitted when a stream is first opened.
+  TODO_EVENT_TYPE_SNAPSHOT = 4;
+}
+
 // TodoEvent is a server-sent message describing a change to a todo item.
 // It is emitted by both WatchTodos and SyncTodos streams.
 message TodoEvent {
@@ -203,4 +217,6 @@ message TodoEvent {
   Todo todo = 2;
   // Time at which the change was observed by the server.
   google.protobuf.Timestamp event_time = 3;
+  // Machine-readable event type.
+  TodoEventType type = 4;
 }

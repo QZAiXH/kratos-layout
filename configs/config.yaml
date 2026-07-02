@@ -7,11 +7,14 @@ server:
     timeout: 1s
 data:
   database:
-    driver: mysql
-    source: root:root@tcp(127.0.0.1:3306)/test?parseTime=True&loc=Local
+    driver: ""
+    source: ""
+    auto_migrate: false
   redis:
+    addr: ""
     password: ""
-    addr: 127.0.0.1:6379
+    db: 0
+    dial_timeout: 1s
     read_timeout: 0.2s
     write_timeout: 0.2s
 auth:
@@ -26,3 +29,9 @@ log:
     max_backups: 5
     max_age: 7
     compress: true
+job:
+  enabled: false
+  queue: default
+  worker_concurrency: 4
+  task_timeout: 30m
+  shutdown_timeout: 15s

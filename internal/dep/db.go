@@ -1,19 +1,20 @@
 package dep
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
+	"log/slog"
 	"strings"
 
-	"helloworld/internal/conf"
+	"github.com/QZAiXH/kratos-layout/internal/conf"
+	"github.com/QZAiXH/kratos-layout/internal/data/ent"
 
-	"github.com/go-kratos/kratos/v3/log"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 	"github.com/redis/go-redis/v9"
 )
 
-func NewDB(c *conf.Data) (*sql.DB, func(), error) {
+func NewDB(c *conf.Data, logger *slog.Logger) (*ent.Client, func(), error) {
 	dbConf := c.GetDatabase()
 	if dbConf == nil {
 		return nil, func() {}, nil
@@ -24,33 +25,38 @@ func NewDB(c *conf.Data) (*sql.DB, func(), error) {
 		return nil, func() {}, nil
 	}
 
-	db, err := sql.Open(driver, source)
+	client, err := ent.Open(driver, source)
 	if err != nil {
-		return nil, nil, fmt.Errorf("open database: %w", err)
+		return nil, nil, fmt.Errorf("open ent database: %w", err)
 	}
-	return db, func() {
-		if err := db.Close(); err != nil {
-			log.Warnf("close database client: %v", err)
+	cleanup := func() {
+		if err := client.Close(); err != nil && logger != nil {
+			logger.Warn("close ent database", slog.Any("error", err))
 		}
-	}, nil
+	}
+	if dbConf.GetAutoMigrate() {
+		if err := client.Schema.Create(context.Background()); err != nil {
+			cleanup()
+			return nil, nil, fmt.Errorf("auto migrate ent schema: %w", err)
+		}
+	}
+	return client, cleanup, nil
 }
 
-func NewRedis(c *conf.Data) (*redis.Client, func(), error) {
+func NewRedis(c *conf.Data, logger *slog.Logger) (*redis.Client, func(), error) {
 	redisConf := c.GetRedis()
-	if redisConf == nil {
-		return nil, func() {}, nil
-	}
-	addr := strings.TrimSpace(redisConf.GetAddr())
-	if addr == "" {
+	if redisConf == nil || strings.TrimSpace(redisConf.GetAddr()) == "" {
 		return nil, func() {}, nil
 	}
 
 	options := &redis.Options{
-		Addr:     addr,
+		Network:  strings.TrimSpace(redisConf.GetNetwork()),
+		Addr:     strings.TrimSpace(redisConf.GetAddr()),
 		Password: redisConf.GetPassword(),
+		DB:       int(redisConf.GetDb()),
 	}
-	if network := strings.TrimSpace(redisConf.GetNetwork()); network != "" {
-		options.Network = network
+	if timeout := redisConf.GetDialTimeout(); timeout != nil {
+		options.DialTimeout = timeout.AsDuration()
 	}
 	if timeout := redisConf.GetReadTimeout(); timeout != nil {
 		options.ReadTimeout = timeout.AsDuration()
@@ -61,8 +67,8 @@ func NewRedis(c *conf.Data) (*redis.Client, func(), error) {
 
 	client := redis.NewClient(options)
 	return client, func() {
-		if err := client.Close(); err != nil {
-			log.Warnf("close redis client: %v", err)
+		if err := client.Close(); err != nil && logger != nil {
+			logger.Warn("close redis client", slog.Any("error", err))
 		}
 	}, nil
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"helloworld/internal/pkg/token"
+	"github.com/QZAiXH/kratos-layout/internal/pkg/token"
 
 	casbinv3 "github.com/casbin/casbin/v3"
 	kratoserrors "github.com/go-kratos/kratos/v3/errors"
@@ -54,14 +54,6 @@ func GetUserIDFromContext(ctx context.Context) (string, error) {
 		return "", ErrUnauthorized
 	}
 	return claims.UserID, nil
-}
-
-func GetOptionalUserIDFromContext(ctx context.Context) string {
-	userID, err := GetUserIDFromContext(ctx)
-	if err != nil {
-		return ""
-	}
-	return userID
 }
 
 func JWTServer(manager *token.Manager) middleware.Middleware {
@@ -114,11 +106,7 @@ func NewSecurityUser(ctx context.Context) (*SecurityUser, error) {
 	if !ok || strings.TrimSpace(tr.Operation()) == "" {
 		return nil, ErrForbidden
 	}
-	return &SecurityUser{
-		Subject: userID,
-		Object:  tr.Operation(),
-		Action:  ActionInvoke,
-	}, nil
+	return &SecurityUser{Subject: userID, Object: tr.Operation(), Action: ActionInvoke}, nil
 }
 
 func bearerTokenFromContext(ctx context.Context) (string, bool) {

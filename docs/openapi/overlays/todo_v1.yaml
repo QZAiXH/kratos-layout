@@ -1,0 +1,37 @@
+paths:
+  /v1/todos/watch:
+    get:
+      summary: Watch todo changes
+      description: |
+        Returns a `text/event-stream` response. Each frame carries a serialized
+        `TodoEvent` message in the SSE `data:` field.
+      responses:
+        "200":
+          description: Todo event stream
+          headers:
+            Cache-Control:
+              description: Prevent clients and proxies from caching the stream.
+              schema:
+                type: string
+              example: no-cache
+            Connection:
+              description: Keep the HTTP connection open for streaming.
+              schema:
+                type: string
+              example: keep-alive
+            X-Accel-Buffering:
+              description: Disable buffering in Nginx-compatible reverse proxies.
+              schema:
+                type: string
+              example: "no"
+          content:
+            "*/*": null
+            application/json: null
+            text/event-stream:
+              schema:
+                type: string
+              examples:
+                snapshot_frame:
+                  summary: Snapshot event frame
+                  value: |-
+                    data: {"action":"snapshot","type":"TODO_EVENT_TYPE_SNAPSHOT","todo":{"id":1,"title":"ship docs","completed":false},"event_time":"2026-07-02T10:00:00Z"}

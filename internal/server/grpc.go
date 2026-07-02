@@ -3,9 +3,9 @@ package server
 import (
 	"log/slog"
 
-	v1 "helloworld/api/todo/v1"
-	"helloworld/internal/conf"
-	"helloworld/internal/service"
+	v1 "github.com/QZAiXH/kratos-layout/api/todo/v1"
+	"github.com/QZAiXH/kratos-layout/internal/conf"
+	"github.com/QZAiXH/kratos-layout/internal/service"
 
 	"github.com/go-kratos/kratos/v3/middleware"
 	"github.com/go-kratos/kratos/v3/middleware/logging"
@@ -22,14 +22,15 @@ func NewGRPCServer(c *conf.Server, security middleware.Middleware, logger *slog.
 			security,
 		),
 	}
-	if c.Grpc.Network != "" {
-		opts = append(opts, grpc.Network(c.Grpc.Network))
+	grpcConf := c.GetGrpc()
+	if grpcConf.GetNetwork() != "" {
+		opts = append(opts, grpc.Network(grpcConf.GetNetwork()))
 	}
-	if c.Grpc.Addr != "" {
-		opts = append(opts, grpc.Address(c.Grpc.Addr))
+	if grpcConf.GetAddr() != "" {
+		opts = append(opts, grpc.Address(grpcConf.GetAddr()))
 	}
-	if c.Grpc.Timeout != nil {
-		opts = append(opts, grpc.Timeout(c.Grpc.Timeout.AsDuration()))
+	if grpcConf.GetTimeout() != nil {
+		opts = append(opts, grpc.Timeout(grpcConf.GetTimeout().AsDuration()))
 	}
 	srv := grpc.NewServer(opts...)
 	v1.RegisterTodoServiceServer(srv, todo)

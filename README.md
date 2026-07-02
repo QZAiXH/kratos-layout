@@ -1,176 +1,59 @@
-# Kratos Project Template
+# kratos-layout
 
-A project template for creating new Kratos services with HTTP and gRPC
-transports, protobuf-first APIs, Wire dependency injection, OpenAPI generation,
-and a small CRUD example.
+基于最新 `kratos new` 官方 layout 扩展的 Kratos v3 后端模板。
 
-Use this repository as a starting point for a new service. The included sample
-resource is only reference code for API shape, layering, code generation, and
-testing. Replace it with your own domain model when creating a real project.
+## 包含内容
 
-## Create a New Project
+- Kratos v3 HTTP/gRPC
+- Buf + protobuf 生成链
+- OpenAPI 3.1 文档发布器，包含 SSE overlay 与 enum 注释增强
+- Wire 依赖注入
+- Ent ORM 基础 schema
+- Redis
+- JWT Ed25519
+- Casbin
+- Asynq 后台任务运行时
+- Redsync 分布式锁依赖
+- zap/slog 日志与轮转
+- 常用 helper：`typecatch`、`pagination`、`id`、`decimalx`
+- Dockerfile 与 Postgres/Redis docker-compose
+- `.agents/.codex/.claude` 项目技能
 
-1. Copy or generate a repository from this template.
-2. Update the Go module path:
+## 生成新项目
+
+先把本目录提交到 Git 仓库，然后：
 
 ```bash
-go mod edit -module github.com/your-org/your-service
-```
-
-3. Replace existing import paths that reference this template module.
-4. Rename `cmd/helloworld` if needed and update `APP` in `Makefile`.
-5. Replace the sample CRUD resource with your own resource.
-6. Regenerate code and verify the project:
-
-```bash
+kratos new demo -r <your-git-repo-url> --timeout 120s
+cd demo
 make all
-make lint
-make test
-```
-
-## What Is Included
-
-- Kratos HTTP and gRPC server setup.
-- Protobuf API definitions and generated Go code.
-- OpenAPI generation.
-- Wire-based dependency injection.
-- Layered `service`, `biz`, and `data` packages.
-- Config-driven SQL database, Redis, and Casbin initialization in `internal/dep`.
-- JWT access/refresh token helpers and Casbin middleware.
-- `typecatch` helpers for simple same-name structure copying.
-- Zap-backed structured logging with optional file rotation.
-- A lightweight in-memory repository for the sample resource.
-- Unit tests for the service layer.
-- A test guard that requires Chinese comments on Go test cases.
-- Server-streaming and bidirectional-streaming examples.
-- Project agent instructions in `AGENTS.md`.
-- Kratos agent skills in `.agents/skills`.
-
-## Project Layout
-
-```text
-api/                  Protobuf APIs and generated bindings
-cmd/                  Application entrypoints
-configs/              Local configuration
-internal/server/      HTTP and gRPC server construction
-internal/service/     Transport-facing service methods
-internal/biz/         Usecases, entities, errors, repository interfaces
-internal/dep/         External infrastructure initialization
-internal/data/        Repository implementations
-internal/pkg/         Shared auth, token, and type conversion helpers
-.agents/skills/       Project agent skills
-openapi.yaml          Generated OpenAPI document
-```
-
-## API Template Practices
-
-The sample CRUD API demonstrates common conventions for Kratos projects:
-
-- Resource-oriented methods: create, get, list, update, delete.
-- HTTP annotations with `google.api.http`.
-- Required fields with `google.api.field_behavior`.
-- List requests with `page_size`, `page_token`, `filter`, and `order_by`.
-- Pagination with `go.einride.tech/aip/pagination`.
-- Partial updates with `google.protobuf.FieldMask` and `fieldmask.Update`.
-- Streaming RPC definitions for one-way and bidirectional streams.
-
-The sample Todo repository intentionally stays in-memory. It demonstrates flow
-across layers, but does not implement a full query engine. Real repositories can
-use the SQL/Redis clients initialized by `internal/dep`, aggregated by
-`internal/data`, and apply parsed filters and ordering in SQL, Ent, or another
-storage layer.
-
-## Auth Template Practices
-
-- `internal/pkg/token` issues and validates Ed25519 JWT access/refresh tokens.
-- `internal/pkg/authz` provides request user extraction and Casbin middleware.
-- `internal/dep` initializes the Casbin enforcer.
-- `internal/server/security.go` applies JWT + Casbin to protected operations.
-- The sample Todo operations are whitelisted so the template works immediately.
-- `configs/config.yaml` leaves `auth.private_key_path` empty by default; the
-  process generates a temporary key. Set a PKCS8 Ed25519 private key path for a
-  real service so tokens survive restarts.
-
-## Logging
-
-- `internal/pkg/zaplog` backs Kratos `slog` with zap JSON output.
-- `log.filepath` enables file output; `log.rotate` enables lumberjack rotation.
-- Request logs are enabled for HTTP and gRPC server middleware.
-- Fields whose key contains `password`, plus Kratos request `args` password
-  fragments, are masked before writing logs.
-
-## Development Commands
-
-Install generators:
-
-```bash
-make init
-```
-
-Regenerate API bindings and OpenAPI:
-
-```bash
-make api
-```
-
-Regenerate config protobufs:
-
-```bash
-make config
-```
-
-Run all generation steps, Wire, and module cleanup:
-
-```bash
-make all
-```
-
-Build:
-
-```bash
+go test ./...
 make build
 ```
 
-Test:
+本模板仓库内的入口目录必须保持 `cmd/server`。Kratos CLI 会在生成项目时改成 `cmd/<project>`。
+
+## 本地开发
 
 ```bash
-make test
-```
-
-Lint:
-
-```bash
-make lint
-```
-
-Run:
-
-```bash
+make init
+make all
+make openapi
+go test ./...
 make run
 ```
 
-## Run Locally
+默认配置不强制连接 DB/Redis。需要本地依赖时：
 
 ```bash
-go run ./cmd/helloworld -conf ./configs
+docker compose -f deploy/docker-compose.yml up -d
 ```
 
-Default local ports are configured in `configs/config.yaml`:
+然后按需修改 `configs/config.yaml` 或通过 `configs/config.env.example` 中的环境变量覆盖敏感值。
 
-- HTTP: `0.0.0.0:8000`
-- gRPC: `0.0.0.0:9000`
+## 注意
 
-## Docker
-
-```bash
-docker build -t <your-image-name> .
-docker run --rm -p 8000:8000 -p 9000:9000 \
-  -v </path/to/your/configs>:/data/conf \
-  <your-image-name>
-```
-
-If you rename the app, build with:
-
-```bash
-docker build --build-arg APP=<your-app-name> -t <your-image-name> .
-```
+- 不要提交真实 DSN、token、密钥、证书。
+- 不要手改 generated files，改源文件后重新运行 `make api`、`make openapi`、`make config`、`make ent`、`make generate`。
+- proto `go_package` 使用相对路径，避免 `kratos new` 替换 module path 时破坏 protobuf raw descriptor。
+- OpenAPI 正式产物在 `docs/openapi`。SSE 响应用 `docs/openapi/overlays/*.yaml` 补 `text/event-stream`、headers、examples；enum 文档来自 proto enum/value 注释。

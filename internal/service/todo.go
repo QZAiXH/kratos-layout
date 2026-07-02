@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	v1 "helloworld/api/todo/v1"
-	"helloworld/internal/biz"
+	v1 "github.com/QZAiXH/kratos-layout/api/todo/v1"
+	"github.com/QZAiXH/kratos-layout/internal/biz"
 
 	"go.einride.tech/aip/fieldmask"
 	"go.einride.tech/aip/filtering"
@@ -218,6 +218,7 @@ func (s *TodoService) SyncTodos(stream v1.TodoService_SyncTodosServer) error {
 				Action:    "deleted",
 				Todo:      &v1.Todo{Id: id},
 				EventTime: timestamppb.Now(),
+				Type:      v1.TodoEventType_TODO_EVENT_TYPE_DELETED,
 			}
 		default:
 			return biz.ErrTodoInvalidArgument
@@ -245,6 +246,22 @@ func newTodoEvent(action string, todo *biz.Todo) *v1.TodoEvent {
 		Action:    action,
 		Todo:      convertTodoReply(todo),
 		EventTime: timestamppb.New(time.Now()),
+		Type:      todoEventType(action),
+	}
+}
+
+func todoEventType(action string) v1.TodoEventType {
+	switch strings.ToLower(action) {
+	case "created", "create":
+		return v1.TodoEventType_TODO_EVENT_TYPE_CREATED
+	case "updated", "update":
+		return v1.TodoEventType_TODO_EVENT_TYPE_UPDATED
+	case "deleted", "delete":
+		return v1.TodoEventType_TODO_EVENT_TYPE_DELETED
+	case "snapshot":
+		return v1.TodoEventType_TODO_EVENT_TYPE_SNAPSHOT
+	default:
+		return v1.TodoEventType_TODO_EVENT_TYPE_UNSPECIFIED
 	}
 }
 

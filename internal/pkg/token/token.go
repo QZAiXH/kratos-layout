@@ -20,9 +20,7 @@ const (
 	TypeRefresh = "refresh"
 )
 
-var (
-	ErrInvalidToken = kratoserrors.Unauthorized("UNAUTHORIZED", "invalid token")
-)
+var ErrInvalidToken = kratoserrors.Unauthorized("UNAUTHORIZED", "invalid token")
 
 type AccessTokenClaims struct {
 	UserID  string `json:"uid"`
@@ -66,7 +64,6 @@ func NewManager(privateKeyPath string, accessTTL, refreshTTL time.Duration) (*Ma
 	if err != nil {
 		return nil, err
 	}
-
 	return &Manager{
 		privateKey:      privateKey,
 		publicKey:       privateKey.Public().(ed25519.PublicKey),
@@ -86,7 +83,7 @@ func (m *Manager) GenerateTokenPair(userID, tokenVersion string) (*Pair, error) 
 	}
 
 	now := time.Now()
-	refreshClaims := &RefreshTokenClaims{
+	claims := &RefreshTokenClaims{
 		UserID:  userID,
 		PairID:  pairID,
 		Version: tokenVersion,
@@ -97,15 +94,11 @@ func (m *Manager) GenerateTokenPair(userID, tokenVersion string) (*Pair, error) 
 			NotBefore: jwtv5.NewNumericDate(now),
 		},
 	}
-	refreshToken, err := jwtv5.NewWithClaims(jwtv5.SigningMethodEdDSA, refreshClaims).SignedString(m.privateKey)
+	refreshToken, err := jwtv5.NewWithClaims(jwtv5.SigningMethodEdDSA, claims).SignedString(m.privateKey)
 	if err != nil {
 		return nil, err
 	}
-	return &Pair{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-		ExpiresIn:    int64(m.accessTokenTTL.Seconds()),
-	}, nil
+	return &Pair{AccessToken: accessToken, RefreshToken: refreshToken, ExpiresIn: int64(m.accessTokenTTL.Seconds())}, nil
 }
 
 func (m *Manager) GenerateAccessToken(userID, tokenVersion, pairID string) (string, error) {
@@ -113,7 +106,6 @@ func (m *Manager) GenerateAccessToken(userID, tokenVersion, pairID string) (stri
 	if err != nil {
 		return "", err
 	}
-
 	now := time.Now()
 	claims := &AccessTokenClaims{
 		UserID:  userID,
@@ -140,7 +132,6 @@ func (m *Manager) ValidateAccessToken(tokenString string) (*AccessTokenClaims, e
 	if err != nil {
 		return nil, ErrInvalidToken
 	}
-
 	claims, ok := parsed.Claims.(*AccessTokenClaims)
 	if !ok || !parsed.Valid || claims.Type != TypeAccess || strings.TrimSpace(claims.UserID) == "" {
 		return nil, ErrInvalidToken

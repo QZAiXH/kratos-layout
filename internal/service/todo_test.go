@@ -3,12 +3,11 @@ package service
 import (
 	"context"
 	"io"
-	"log/slog"
 	"testing"
 
-	v1 "helloworld/api/todo/v1"
-	"helloworld/internal/biz"
-	"helloworld/internal/data"
+	v1 "github.com/QZAiXH/kratos-layout/api/todo/v1"
+	"github.com/QZAiXH/kratos-layout/internal/biz"
+	"github.com/QZAiXH/kratos-layout/internal/data"
 
 	kratoserrors "github.com/go-kratos/kratos/v3/errors"
 	"google.golang.org/grpc/metadata"
@@ -16,13 +15,11 @@ import (
 )
 
 func newTestTodoService() *TodoService {
-	logger := slog.Default()
-	repo := data.NewTodoRepo(&data.Data{}, logger)
-	uc := biz.NewTodoUsecase(repo, logger)
+	repo := data.NewTodoRepo(&data.Data{})
+	uc := biz.NewTodoUsecase(repo)
 	return NewTodoService(uc)
 }
 
-// TestTodoServiceCRUD 验证 Todo 服务完整的创建、读取、更新和删除流程。
 func TestTodoServiceCRUD(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestTodoService()
@@ -78,7 +75,6 @@ func TestTodoServiceCRUD(t *testing.T) {
 	}
 }
 
-// TestTodoServiceListTodosPagination 验证列表接口按分页令牌返回连续结果。
 func TestTodoServiceListTodosPagination(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestTodoService()
@@ -118,7 +114,6 @@ func TestTodoServiceListTodosPagination(t *testing.T) {
 	}
 }
 
-// TestTodoServiceListTodosFilterAndOrderByValidation 验证列表接口接受模板支持的过滤和排序参数。
 func TestTodoServiceListTodosFilterAndOrderByValidation(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestTodoService()
@@ -149,7 +144,6 @@ func TestTodoServiceListTodosFilterAndOrderByValidation(t *testing.T) {
 	}
 }
 
-// TestTodoServiceValidation 验证服务边界会拒绝无效输入。
 func TestTodoServiceValidation(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestTodoService()
@@ -177,7 +171,6 @@ func TestTodoServiceValidation(t *testing.T) {
 	}
 }
 
-// TestTodoServiceWatchTodos 验证服务端流会发送当前 Todo 快照事件。
 func TestTodoServiceWatchTodos(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestTodoService()
@@ -205,7 +198,6 @@ func TestTodoServiceWatchTodos(t *testing.T) {
 	}
 }
 
-// TestTodoServiceSyncTodos 验证双向流会按请求动作返回对应事件。
 func TestTodoServiceSyncTodos(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestTodoService()

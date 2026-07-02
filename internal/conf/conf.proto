@@ -1,7 +1,7 @@
 syntax = "proto3";
 package kratos.api;
 
-option go_package = "helloworld/internal/conf;conf";
+option go_package = "internal/conf;conf";
 
 import "google/protobuf/duration.proto";
 
@@ -10,6 +10,7 @@ message Bootstrap {
   Data data = 2;
   Auth auth = 3;
   Log log = 4;
+  Job job = 5;
 }
 
 message Server {
@@ -31,13 +32,16 @@ message Data {
   message Database {
     string driver = 1;
     string source = 2;
+    bool auto_migrate = 3;
   }
   message Redis {
     string network = 1;
     string addr = 2;
     google.protobuf.Duration read_timeout = 3;
     google.protobuf.Duration write_timeout = 4;
-    string password = 5;
+    google.protobuf.Duration dial_timeout = 5;
+    string password = 6;
+    int32 db = 7;
   }
   Database database = 1;
   Redis redis = 2;
@@ -59,4 +63,12 @@ message Log {
   string level = 1;
   string filepath = 2;
   Rotate rotate = 3;
+}
+
+message Job {
+  bool enabled = 1;
+  string queue = 2;
+  int32 worker_concurrency = 3;
+  google.protobuf.Duration task_timeout = 4;
+  google.protobuf.Duration shutdown_timeout = 5;
 }

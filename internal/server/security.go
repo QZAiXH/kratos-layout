@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	v1 "helloworld/api/todo/v1"
-	"helloworld/internal/conf"
-	"helloworld/internal/pkg/authz"
-	"helloworld/internal/pkg/token"
+	v1 "github.com/QZAiXH/kratos-layout/api/todo/v1"
+	"github.com/QZAiXH/kratos-layout/internal/conf"
+	"github.com/QZAiXH/kratos-layout/internal/pkg/authz"
+	"github.com/QZAiXH/kratos-layout/internal/pkg/token"
 
 	casbinv3 "github.com/casbin/casbin/v3"
 	"github.com/go-kratos/kratos/v3/middleware"
@@ -37,7 +37,7 @@ func NewSecurityMiddleware(manager *token.Manager, enforcer *casbinv3.Enforcer) 
 }
 
 func NewProtectedMatcher() selector.MatchFunc {
-	whiteList := map[string]struct{}{
+	anonymous := map[string]struct{}{
 		v1.OperationTodoServiceCreateTodo: {},
 		v1.OperationTodoServiceDeleteTodo: {},
 		v1.OperationTodoServiceGetTodo:    {},
@@ -47,7 +47,7 @@ func NewProtectedMatcher() selector.MatchFunc {
 		v1.OperationTodoServiceWatchTodos: {},
 	}
 	return func(_ context.Context, operation string) bool {
-		_, ok := whiteList[operation]
+		_, ok := anonymous[operation]
 		return !ok
 	}
 }

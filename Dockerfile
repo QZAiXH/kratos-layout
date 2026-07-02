@@ -1,15 +1,11 @@
-ARG APP=helloworld
-
 FROM golang:1.25 AS builder
-ARG APP
 
 COPY . /src
 WORKDIR /src
 
-RUN GOPROXY=https://goproxy.cn make build APP=${APP}
+RUN GOPROXY=https://goproxy.cn make build
 
 FROM debian:stable-slim
-ARG APP
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 		ca-certificates  \
@@ -17,7 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         && rm -rf /var/lib/apt/lists/ \
         && apt-get autoremove -y && apt-get autoclean -y
 
-COPY --from=builder /src/bin/${APP} /app/server
+COPY --from=builder /src/bin /app
 
 WORKDIR /app
 
@@ -25,4 +21,4 @@ EXPOSE 8000
 EXPOSE 9000
 VOLUME /data/conf
 
-CMD ["./server", "-conf", "/data/conf"]
+CMD ["sh", "-c", "exec /app/* -conf /data/conf"]

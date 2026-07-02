@@ -3,17 +3,15 @@ package data
 import (
 	"cmp"
 	"context"
-	"log/slog"
 	"slices"
 	"sync"
 	"time"
 
-	"helloworld/internal/biz"
-	"helloworld/internal/data/base"
+	"github.com/QZAiXH/kratos-layout/internal/biz"
 )
 
 type todoRepo struct {
-	*base.Repo
+	data *Data
 
 	mu     sync.RWMutex
 	nextID int64
@@ -21,9 +19,9 @@ type todoRepo struct {
 }
 
 // NewTodoRepo creates a new TodoRepo instance.
-func NewTodoRepo(data *base.Data, logger *slog.Logger) biz.TodoRepo {
+func NewTodoRepo(data *Data) biz.TodoRepo {
 	return &todoRepo{
-		Repo:   base.NewRepo(data, logger, "data/todo"),
+		data:   data,
 		nextID: 1,
 		todos:  make(map[int64]*biz.Todo),
 	}

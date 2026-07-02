@@ -1,0 +1,564 @@
+{
+  "components": {
+    "schemas": {
+      "google.protobuf.Any": {
+        "additionalProperties": true,
+        "description": "Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.",
+        "properties": {
+          "@type": {
+            "description": "The type of the serialized message.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "google.rpc.Status": {
+        "description": "The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).",
+        "properties": {
+          "code": {
+            "description": "The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].",
+            "format": "int32",
+            "type": "integer"
+          },
+          "details": {
+            "description": "A list of messages that carry the error details.  There is a common set of message types for APIs to use.",
+            "items": {
+              "$ref": "#/components/schemas/google.protobuf.Any"
+            },
+            "type": "array"
+          },
+          "message": {
+            "description": "A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "todo.v1.SyncTodoRequest": {
+        "description": "SyncTodoRequest is a single client message in the SyncTodos bidirectional\n stream. The action field selects which operation to perform on the server.",
+        "properties": {
+          "action": {
+            "description": "The operation to perform. One of `create`, `update`, or `delete`.",
+            "type": "string"
+          },
+          "id": {
+            "description": "Identifier of the target todo. Required for `delete` and `update`.",
+            "type": "string"
+          },
+          "todo": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/todo.v1.Todo"
+              }
+            ],
+            "description": "Payload for `create` and `update` actions. Ignored for `delete`."
+          },
+          "update_mask": {
+            "description": "Field mask used by `update` actions to limit which fields are overwritten.\n Ignored for `create` and `delete`.",
+            "format": "field-mask",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "todo.v1.Todo": {
+        "description": "Todo is the canonical representation of a todo item.",
+        "properties": {
+          "completed": {
+            "description": "Whether the todo item has been completed.",
+            "type": "boolean"
+          },
+          "content": {
+            "description": "Detailed description or notes for the todo item.",
+            "type": "string"
+          },
+          "create_time": {
+            "description": "Time at which the todo item was created. Server-assigned, read-only.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "description": "Server-assigned unique identifier. Read-only on create.",
+            "type": "string"
+          },
+          "title": {
+            "description": "Short human-readable title.",
+            "type": "string"
+          },
+          "update_time": {
+            "description": "Time at which the todo item was last modified. Server-assigned, read-only.",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "todo.v1.TodoEvent": {
+        "description": "TodoEvent is a server-sent message describing a change to a todo item.\n It is emitted by both WatchTodos and SyncTodos streams.",
+        "properties": {
+          "action": {
+            "description": "The change that occurred. One of `created`, `updated`, or `deleted`.",
+            "type": "string"
+          },
+          "event_time": {
+            "description": "Time at which the change was observed by the server.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "todo": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/todo.v1.Todo"
+              }
+            ],
+            "description": "The todo item after the change. For `deleted` events only the id field\n is guaranteed to be populated."
+          },
+          "type": {
+            "description": "Machine-readable event type.\n\n枚举值：\n- `TODO_EVENT_TYPE_UNSPECIFIED`: Default value used when the event type is unknown.\n- `TODO_EVENT_TYPE_CREATED`: A todo item was created.\n- `TODO_EVENT_TYPE_UPDATED`: A todo item was updated.\n- `TODO_EVENT_TYPE_DELETED`: A todo item was deleted.\n- `TODO_EVENT_TYPE_SNAPSHOT`: A snapshot event emitted when a stream is first opened.",
+            "enum": [
+              "TODO_EVENT_TYPE_UNSPECIFIED",
+              "TODO_EVENT_TYPE_CREATED",
+              "TODO_EVENT_TYPE_UPDATED",
+              "TODO_EVENT_TYPE_DELETED",
+              "TODO_EVENT_TYPE_SNAPSHOT"
+            ],
+            "format": "enum",
+            "type": "string",
+            "x-enum-descriptions": [
+              "Default value used when the event type is unknown.",
+              "A todo item was created.",
+              "A todo item was updated.",
+              "A todo item was deleted.",
+              "A snapshot event emitted when a stream is first opened."
+            ],
+            "x-enum-varnames": [
+              "TODO_EVENT_TYPE_UNSPECIFIED",
+              "TODO_EVENT_TYPE_CREATED",
+              "TODO_EVENT_TYPE_UPDATED",
+              "TODO_EVENT_TYPE_DELETED",
+              "TODO_EVENT_TYPE_SNAPSHOT"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "todo.v1.TodoSet": {
+        "description": "TodoSet is a paginated collection of todo items returned by ListTodos.",
+        "properties": {
+          "next_page_token": {
+            "description": "Token used to retrieve the next page via ListTodosRequest.page_token.\n Empty when there are no more results.",
+            "type": "string"
+          },
+          "todos": {
+            "description": "The page of todo items in the order requested by ListTodosRequest.order_by.",
+            "items": {
+              "$ref": "#/components/schemas/todo.v1.Todo"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "TodoService provides a simple CRUD example for managing todo items.\n It demonstrates unary, server-streaming, and bidirectional-streaming RPCs\n together with AIP-style list filtering, ordering, and pagination.",
+    "title": "TodoService API",
+    "version": "0.0.1"
+  },
+  "jsonSchemaDialect": "https://spec.openapis.org/oas/3.1/dialect/base",
+  "openapi": "3.1.0",
+  "paths": {
+    "/v1/todos/create": {
+      "post": {
+        "description": "CreateTodo creates a new todo item and returns the persisted record\n with the server-assigned id, create_time, and update_time populated.\n Returns INVALID_ARGUMENT if the request payload fails validation.",
+        "operationId": "TodoService_CreateTodo",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/todo.v1.Todo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/todo.v1.Todo"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/google.rpc.Status"
+                }
+              }
+            },
+            "description": "Default error response"
+          }
+        },
+        "summary": "CreateTodo creates a new todo item and returns the persisted record",
+        "tags": [
+          "TodoService"
+        ]
+      }
+    },
+    "/v1/todos/list": {
+      "get": {
+        "description": "ListTodos returns a page of todo items, optionally filtered and ordered.\n Use the next_page_token from TodoSet to retrieve subsequent pages.\n Returns INVALID_ARGUMENT if filter, order_by, or page_token are malformed.",
+        "operationId": "TodoService_ListTodos",
+        "parameters": [
+          {
+            "description": "Optional. Maximum number of todo items to return in a single page.\n The server may apply a default and a maximum when unset or out of range.",
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Optional. Token from a previous response's next_page_token used to fetch\n the next page. Leave empty to request the first page.",
+            "in": "query",
+            "name": "page_token",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional. The standard list filter.\n Supported fields:\n    * `title` (i.e. `title:\"bug\"`)\n    * `content` (i.e. `content:\"docs\"`)\n    * `completed` (i.e. `completed` or `NOT completed`)\n    * `create_time` range (i.e. `create_time\u003e=\"2026-01-01T00:00:00Z\"`)",
+            "in": "query",
+            "name": "filter",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional. A comma-separated list of fields to order by.\n Supported fields:\n    * `id`\n    * `title`\n    * `create_time`\n    * `update_time`\n Append ` desc` to a field for descending order, e.g. `create_time desc`.\n Defaults to ascending order when no direction is supplied.",
+            "in": "query",
+            "name": "order_by",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/todo.v1.TodoSet"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/google.rpc.Status"
+                }
+              }
+            },
+            "description": "Default error response"
+          }
+        },
+        "summary": "ListTodos returns a page of todo items, optionally filtered and ordered.",
+        "tags": [
+          "TodoService"
+        ]
+      }
+    },
+    "/v1/todos/sync": {
+      "post": {
+        "description": "SyncTodos opens a bidirectional stream for two-way synchronization.\n The client sends SyncTodoRequest messages describing local changes, and\n the server pushes back TodoEvent messages reflecting the resulting state.\n The stream stays open until either side closes it.",
+        "operationId": "TodoService_SyncTodos",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/todo.v1.SyncTodoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/todo.v1.TodoEvent"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/google.rpc.Status"
+                }
+              }
+            },
+            "description": "Default error response"
+          }
+        },
+        "summary": "SyncTodos opens a bidirectional stream for two-way synchronization.",
+        "tags": [
+          "TodoService"
+        ]
+      }
+    },
+    "/v1/todos/update": {
+      "put": {
+        "description": "UpdateTodo applies a partial update to an existing todo item using a\n FieldMask. Only the fields listed in update_mask are overwritten; all\n other fields are left unchanged.\n Returns NOT_FOUND if the target todo does not exist, or\n INVALID_ARGUMENT if update_mask references unknown fields.",
+        "operationId": "TodoService_UpdateTodo",
+        "parameters": [
+          {
+            "description": "Set of field paths in todo to overwrite. Fields not listed are left\n unchanged. Use a single path of `*` to replace every mutable field.",
+            "in": "query",
+            "name": "update_mask",
+            "required": true,
+            "schema": {
+              "format": "field-mask",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/todo.v1.Todo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/todo.v1.Todo"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/google.rpc.Status"
+                }
+              }
+            },
+            "description": "Default error response"
+          }
+        },
+        "summary": "UpdateTodo applies a partial update to an existing todo item using a",
+        "tags": [
+          "TodoService"
+        ]
+      }
+    },
+    "/v1/todos/watch": {
+      "get": {
+        "description": "Returns a `text/event-stream` response. Each frame carries a serialized\n`TodoEvent` message in the SSE `data:` field.\n",
+        "operationId": "TodoService_WatchTodos",
+        "parameters": [
+          {
+            "description": "Optional. Maximum number of todo items returned in the initial snapshot\n before live events begin streaming.",
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Optional. Page token used to resume from a prior snapshot.",
+            "in": "query",
+            "name": "page_token",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional. List filter expression. Same syntax as ListTodosRequest.filter.",
+            "in": "query",
+            "name": "filter",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional. Order specification. Same syntax as ListTodosRequest.order_by.",
+            "in": "query",
+            "name": "order_by",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "examples": {
+                  "snapshot_frame": {
+                    "summary": "Snapshot event frame",
+                    "value": "data: {\"action\":\"snapshot\",\"type\":\"TODO_EVENT_TYPE_SNAPSHOT\",\"todo\":{\"id\":1,\"title\":\"ship docs\",\"completed\":false},\"event_time\":\"2026-07-02T10:00:00Z\"}"
+                  }
+                },
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Todo event stream",
+            "headers": {
+              "Cache-Control": {
+                "description": "Prevent clients and proxies from caching the stream.",
+                "example": "no-cache",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Connection": {
+                "description": "Keep the HTTP connection open for streaming.",
+                "example": "keep-alive",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Accel-Buffering": {
+                "description": "Disable buffering in Nginx-compatible reverse proxies.",
+                "example": "no",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/google.rpc.Status"
+                }
+              }
+            },
+            "description": "Default error response"
+          }
+        },
+        "summary": "Watch todo changes",
+        "tags": [
+          "TodoService"
+        ]
+      }
+    },
+    "/v1/todos/{id}": {
+      "delete": {
+        "description": "DeleteTodo permanently removes a todo item by its id.\n Returns NOT_FOUND if no todo exists with the supplied id.",
+        "operationId": "TodoService_DeleteTodo",
+        "parameters": [
+          {
+            "description": "Unique identifier of the todo item to delete.",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {},
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/google.rpc.Status"
+                }
+              }
+            },
+            "description": "Default error response"
+          }
+        },
+        "summary": "DeleteTodo permanently removes a todo item by its id.",
+        "tags": [
+          "TodoService"
+        ]
+      },
+      "get": {
+        "description": "GetTodo returns a single todo item by its id.\n Returns NOT_FOUND if no todo exists with the supplied id.",
+        "operationId": "TodoService_GetTodo",
+        "parameters": [
+          {
+            "description": "Unique identifier of the todo item to retrieve.",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/todo.v1.Todo"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/google.rpc.Status"
+                }
+              }
+            },
+            "description": "Default error response"
+          }
+        },
+        "summary": "GetTodo returns a single todo item by its id.",
+        "tags": [
+          "TodoService"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "description": "todo/v1 模块接口文档。",
+      "name": "TodoService"
+    }
+  ],
+  "x-openapi-publisher": {
+    "artifact_type": "module",
+    "format": "kratos-openapi-publisher",
+    "module": "todo_v1",
+    "normalized_from": "3.0.3"
+  }
+}

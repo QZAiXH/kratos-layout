@@ -1,4 +1,0 @@
-interface:
-  display_name: "Kratos DevOps Quality"
-  short_description: "Build, generate, lint, test, and deploy Kratos services."
-  default_prompt: "Use this skill when working on build, generation, verification, or deployment workflows in a go-kratos service."
