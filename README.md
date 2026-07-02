@@ -17,7 +17,7 @@
 - zap/slog 日志与轮转
 - 常用 helper：`typecatch`、`pagination`、`id`、`decimalx`
 - Dockerfile 与 Postgres/Redis docker-compose
-- `.agents/.codex/.claude` 项目技能
+- `.agents` 项目技能
 
 ## 生成新项目
 

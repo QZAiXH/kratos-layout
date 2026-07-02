@@ -19,11 +19,15 @@ description: Use when adding or changing protobuf contracts, generated HTTP/gRPC
 ## Rules
 
 - Proto is the source of truth.
+- For a non-trivial module, put shared request/result structs and status constants in `internal/biz/<module>/types.go`; if it grows, split by purpose inside the same module. Do not add `internal/dto`.
+- Keep `UseCase`, `Repo`, Provider interfaces, and constructors in `internal/biz/<module>/use_case.go`.
 - Use generated operation constants for auth whitelist/policy decisions.
 - Do not hand-write normal HTTP business routes when proto generation covers the route.
 - For handwritten SSE routes, keep a document-only proto if useful for OpenAPI, but do not register the generated HTTP server for that proto path.
 - Document SSE responses through `docs/openapi/overlays/<module>.yaml` with `text/event-stream`, stream headers, and examples.
 - Put enum and enum value descriptions in proto comments; the OpenAPI publisher emits `x-enum-varnames`, `x-enum-descriptions`, and an enum description block.
+- Define public API errors in module error proto files first. Return those Kratos errors from biz/data and let service pass them through.
+- Use private sentinel errors only for package-local control flow or Provider contracts; keep them in module `errors.go` when needed.
 - Do not expose secrets, tokens, passwords, or internal credentials in responses.
 
 ## Validation

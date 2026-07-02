@@ -66,6 +66,44 @@ make lint      # golangci-lint run
 
 不要让 biz import Ent、SQL、Redis 这类具体存储实现。不要在 service 写业务规则。
 
+### 模块内分层
+
+简单模块先平铺，文件少时不要提前建目录：
+
+```text
+internal/biz/todo.go
+internal/data/todo.go
+internal/service/todo.go
+```
+
+模块变复杂后拆成同名目录：
+
+```text
+internal/biz/order/
+  use_case.go   # UseCase、Repo interface、跨模块 Provider interface、构造函数
+  types.go      # 模块共享请求/结果类型、状态常量、值对象；不要另建 internal/dto
+  errors.go     # 模块私有 sentinel 或错误 helper；公开 API 错误仍从 proto error reason 生成
+  command.go    # 写操作编排
+  query.go      # 读操作编排
+  validate.go   # 复杂校验
+```
+
+结构体组织规则：
+
+- 按业务模块包组织结构体，不按 DTO/VO/BO 这类类型种类建立中央包。
+- API 边界类型以 proto 生成类型为准；模块内跨 service/biz/data 共享的请求、结果、值对象放在 `internal/biz/<module>/types.go`。
+- `types.go` 明显变大后，在同一模块目录按用途拆成 `request.go`、`result.go`、`model.go`、`status.go` 等；不要迁到 `internal/dto`。
+- data 层不要把 Ent entity 传出层边界，先映射成对应 biz 模块类型。
+
+`internal/service/<module>/` 和 `internal/data/<module>/` 跟随同一模块名；service 只做 proto 与 biz 模块类型转换，data 只实现 biz 的 Repo interface。跨模块调用用窄 Provider interface 放在消费方 biz 模块，不直接 import 对方 data。
+
+错误处理规则：
+
+- 公开 API 错误先在 `api/<domain>/<api>/v1/*_error.proto` 或当前模块 error proto 定义 reason，再由 biz/data 返回对应 Kratos error。
+- data 层把 Ent/Redis/SQL 错误翻译成领域错误，不把底层错误直接抛给 service。
+- biz 层做业务错误归一和冲突/幂等判断；service 层只透传错误，不重新包装业务错误。
+- 包内非 API sentinel 用 `errors.Is` 可识别的 `var ErrX = errors.New(...)`，只在模块内部或明确的 Provider contract 中使用。
+
 ## 模板约束
 
 - 模板仓库里入口目录保持 `cmd/server`。

@@ -23,12 +23,15 @@ description: Use for Ent schema changes, data repositories, transactions, Redis-
 4. Keep repo interfaces in biz; implementations in data.
 5. Translate Ent/Redis/system errors into domain errors before crossing upward.
 6. Use DB constraints/transactions or Redis atomic operations for concurrency-sensitive state.
+7. Map Ent entities to `internal/biz/<module>/types.go` types before returning.
 
 ## Do Not
 
 - Do not import Ent in biz or service.
 - Do not hand-edit generated Ent files outside `schema`.
 - Do not add in-memory locks for cross-instance coordination.
+- Do not return Ent/Redis/SQL errors directly to biz/service.
+- Do not create `internal/dto`; map data results to structs owned by the consuming biz module, starting in `types.go` and splitting by purpose inside that module when needed.
 
 ## Validation
 

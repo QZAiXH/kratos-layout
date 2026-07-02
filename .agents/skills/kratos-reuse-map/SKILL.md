@@ -7,7 +7,7 @@ description: Use before adding helpers, clients, converters, locks, pagination, 
 
 ## Existing Reuse Points
 
-- `internal/pkg/typecatch`: copier-based same-name DTO copying.
+- `internal/pkg/typecatch`: copier-based same-name struct field copying.
 - `internal/pkg/pagination`: page size/page number normalization.
 - `internal/pkg/id`: UUID and prefixed ULID helpers.
 - `internal/pkg/decimalx`: yuan/fen decimal helpers.
