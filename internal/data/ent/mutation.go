@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -31,7 +32,10 @@ type CasbinRuleMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *int
+	id            *string
+	version       *time.Time
+	created_at    *time.Time
+	updated_at    *time.Time
 	ptype         *string
 	v0            *string
 	v1            *string
@@ -65,7 +69,7 @@ func newCasbinRuleMutation(c config, op Op, opts ...casbinruleOption) *CasbinRul
 }
 
 // withCasbinRuleID sets the ID field of the mutation.
-func withCasbinRuleID(id int) casbinruleOption {
+func withCasbinRuleID(id string) casbinruleOption {
 	return func(m *CasbinRuleMutation) {
 		var (
 			err   error
@@ -115,9 +119,15 @@ func (m CasbinRuleMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of CasbinRule entities.
+func (m *CasbinRuleMutation) SetID(id string) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *CasbinRuleMutation) ID() (id int, exists bool) {
+func (m *CasbinRuleMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -128,12 +138,12 @@ func (m *CasbinRuleMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *CasbinRuleMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *CasbinRuleMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []string{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -141,6 +151,114 @@ func (m *CasbinRuleMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// SetVersion sets the "version" field.
+func (m *CasbinRuleMutation) SetVersion(t time.Time) {
+	m.version = &t
+}
+
+// Version returns the value of the "version" field in the mutation.
+func (m *CasbinRuleMutation) Version() (r time.Time, exists bool) {
+	v := m.version
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldVersion returns the old "version" field's value of the CasbinRule entity.
+// If the CasbinRule object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CasbinRuleMutation) OldVersion(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldVersion is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldVersion requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldVersion: %w", err)
+	}
+	return oldValue.Version, nil
+}
+
+// ResetVersion resets all changes to the "version" field.
+func (m *CasbinRuleMutation) ResetVersion() {
+	m.version = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *CasbinRuleMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *CasbinRuleMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the CasbinRule entity.
+// If the CasbinRule object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CasbinRuleMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *CasbinRuleMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *CasbinRuleMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *CasbinRuleMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the CasbinRule entity.
+// If the CasbinRule object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CasbinRuleMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *CasbinRuleMutation) ResetUpdatedAt() {
+	m.updated_at = nil
 }
 
 // SetPtype sets the "ptype" field.
@@ -429,7 +547,16 @@ func (m *CasbinRuleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CasbinRuleMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 10)
+	if m.version != nil {
+		fields = append(fields, casbinrule.FieldVersion)
+	}
+	if m.created_at != nil {
+		fields = append(fields, casbinrule.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, casbinrule.FieldUpdatedAt)
+	}
 	if m.ptype != nil {
 		fields = append(fields, casbinrule.FieldPtype)
 	}
@@ -459,6 +586,12 @@ func (m *CasbinRuleMutation) Fields() []string {
 // schema.
 func (m *CasbinRuleMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case casbinrule.FieldVersion:
+		return m.Version()
+	case casbinrule.FieldCreatedAt:
+		return m.CreatedAt()
+	case casbinrule.FieldUpdatedAt:
+		return m.UpdatedAt()
 	case casbinrule.FieldPtype:
 		return m.Ptype()
 	case casbinrule.FieldV0:
@@ -482,6 +615,12 @@ func (m *CasbinRuleMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *CasbinRuleMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case casbinrule.FieldVersion:
+		return m.OldVersion(ctx)
+	case casbinrule.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case casbinrule.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
 	case casbinrule.FieldPtype:
 		return m.OldPtype(ctx)
 	case casbinrule.FieldV0:
@@ -505,6 +644,27 @@ func (m *CasbinRuleMutation) OldField(ctx context.Context, name string) (ent.Val
 // type.
 func (m *CasbinRuleMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case casbinrule.FieldVersion:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetVersion(v)
+		return nil
+	case casbinrule.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case casbinrule.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
 	case casbinrule.FieldPtype:
 		v, ok := value.(string)
 		if !ok {
@@ -603,6 +763,15 @@ func (m *CasbinRuleMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *CasbinRuleMutation) ResetField(name string) error {
 	switch name {
+	case casbinrule.FieldVersion:
+		m.ResetVersion()
+		return nil
+	case casbinrule.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case casbinrule.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
 	case casbinrule.FieldPtype:
 		m.ResetPtype()
 		return nil

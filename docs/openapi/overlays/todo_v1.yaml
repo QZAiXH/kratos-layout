@@ -34,4 +34,4 @@ paths:
                 snapshot_frame:
                   summary: Snapshot event frame
                   value: |-
-                    data: {"action":"snapshot","type":"TODO_EVENT_TYPE_SNAPSHOT","todo":{"id":1,"title":"ship docs","completed":false},"event_time":"2026-07-02T10:00:00Z"}
+                    data: {"action":"snapshot","type":"TODO_EVENT_TYPE_SNAPSHOT","todo":{"id":"01JZ4T00000000000000000000","title":"ship docs","completed":false},"event_time":"2026-07-02T10:00:00Z"}

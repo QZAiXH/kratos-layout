@@ -126,6 +126,7 @@ internal/service/order/
 - 默认配置应能在无 DB/Redis 的情况下启动；需要外部依赖时通过 config/env 打开。
 - 新增生成源后先改源文件，再运行生成命令，不手改生成物。
 - GoLand 打开 proto 报红时运行 `make proto-ide`，把 `.proto-deps` 加到 Protocol Buffers Import Paths；Buf 插件只作为 IDE 版本支持时的可选方案。
+- 新增 Ent schema 使用 `go run entgo.io/ent/cmd/ent@v0.14.6 new <Name> --target internal/data/ent/schema`，再编辑 schema 并运行 `make ent`；所有实体主键默认使用 `StringIDMixin{}` 生成 ULID 字符串 ID。
 - Ent 生成使用 `internal/data/ent/template/database.tmpl`，会生成 `ent.Database` 包装器；data 层优先依赖 `*ent.Database`，用 `InTx` 传递事务上下文，用 `GetClient()` 访问底层 Ent client。
 - OpenAPI 正式产物由 `scripts/openapi` 生成到 `docs/openapi`，不要再依赖根目录 `openapi.yaml`。
 - SSE 文档用 `docs/openapi/overlays/<module>.yaml` 补 `text/event-stream`、响应头、examples。手写 SSE route 可以使用文档专用 proto 参与生成，但不要再注册对应 generated HTTP server，避免重复 path。

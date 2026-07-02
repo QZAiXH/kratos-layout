@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -15,20 +16,27 @@ import (
 type CasbinRule struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// Ptype holds the value of the "ptype" field.
+	// ULID 主键
+	ID string `json:"id,omitempty"`
+	// 乐观锁版本或最后修改时间
+	Version time.Time `json:"version,omitempty"`
+	// 创建时间
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// 更新时间
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Casbin 策略类型
 	Ptype string `json:"ptype,omitempty"`
-	// V0 holds the value of the "v0" field.
+	// Casbin 策略字段 0
 	V0 string `json:"v0,omitempty"`
-	// V1 holds the value of the "v1" field.
+	// Casbin 策略字段 1
 	V1 string `json:"v1,omitempty"`
-	// V2 holds the value of the "v2" field.
+	// Casbin 策略字段 2
 	V2 string `json:"v2,omitempty"`
-	// V3 holds the value of the "v3" field.
+	// Casbin 策略字段 3
 	V3 string `json:"v3,omitempty"`
-	// V4 holds the value of the "v4" field.
+	// Casbin 策略字段 4
 	V4 string `json:"v4,omitempty"`
-	// V5 holds the value of the "v5" field.
+	// Casbin 策略字段 5
 	V5           string `json:"v5,omitempty"`
 	selectValues sql.SelectValues
 }
@@ -38,10 +46,10 @@ func (*CasbinRule) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case casbinrule.FieldID:
-			values[i] = new(sql.NullInt64)
-		case casbinrule.FieldPtype, casbinrule.FieldV0, casbinrule.FieldV1, casbinrule.FieldV2, casbinrule.FieldV3, casbinrule.FieldV4, casbinrule.FieldV5:
+		case casbinrule.FieldID, casbinrule.FieldPtype, casbinrule.FieldV0, casbinrule.FieldV1, casbinrule.FieldV2, casbinrule.FieldV3, casbinrule.FieldV4, casbinrule.FieldV5:
 			values[i] = new(sql.NullString)
+		case casbinrule.FieldVersion, casbinrule.FieldCreatedAt, casbinrule.FieldUpdatedAt:
+			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -58,11 +66,29 @@ func (_m *CasbinRule) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case casbinrule.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value.Valid {
+				_m.ID = value.String
 			}
-			_m.ID = int(value.Int64)
+		case casbinrule.FieldVersion:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field version", values[i])
+			} else if value.Valid {
+				_m.Version = value.Time
+			}
+		case casbinrule.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case casbinrule.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
 		case casbinrule.FieldPtype:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field ptype", values[i])
@@ -141,6 +167,15 @@ func (_m *CasbinRule) String() string {
 	var builder strings.Builder
 	builder.WriteString("CasbinRule(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("version=")
+	builder.WriteString(_m.Version.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
 	builder.WriteString("ptype=")
 	builder.WriteString(_m.Ptype)
 	builder.WriteString(", ")

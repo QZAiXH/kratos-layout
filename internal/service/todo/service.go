@@ -56,7 +56,7 @@ func (s *Service) GetTodo(ctx context.Context, req *v1.GetTodoRequest) (*v1.Todo
 func (s *Service) ListTodos(ctx context.Context, req *v1.ListTodosRequest) (*v1.TodoSet, error) {
 	declarations, err := filtering.NewDeclarations(
 		filtering.DeclareStandardFunctions(),
-		filtering.DeclareIdent("id", filtering.TypeInt),
+		filtering.DeclareIdent("id", filtering.TypeString),
 		filtering.DeclareIdent("title", filtering.TypeString),
 		filtering.DeclareIdent("content", filtering.TypeString),
 		filtering.DeclareIdent("completed", filtering.TypeBool),
@@ -107,7 +107,7 @@ func (s *Service) ListTodos(ctx context.Context, req *v1.ListTodosRequest) (*v1.
 
 // UpdateTodo 更新待办事项。
 func (s *Service) UpdateTodo(ctx context.Context, req *v1.UpdateTodoRequest) (*v1.Todo, error) {
-	if req.GetTodo().GetId() <= 0 || req.GetUpdateMask() == nil || len(req.GetUpdateMask().GetPaths()) == 0 {
+	if strings.TrimSpace(req.GetTodo().GetId()) == "" || req.GetUpdateMask() == nil || len(req.GetUpdateMask().GetPaths()) == 0 {
 		return nil, todobiz.ErrTodoInvalidArgument
 	}
 	current, err := s.GetTodo(ctx, &v1.GetTodoRequest{Id: req.GetTodo().GetId()})
@@ -134,7 +134,7 @@ func (s *Service) DeleteTodo(ctx context.Context, req *v1.DeleteTodoRequest) (*e
 func (s *Service) WatchTodos(req *v1.WatchTodosRequest, stream v1.TodoService_WatchTodosServer) error {
 	declarations, err := filtering.NewDeclarations(
 		filtering.DeclareStandardFunctions(),
-		filtering.DeclareIdent("id", filtering.TypeInt),
+		filtering.DeclareIdent("id", filtering.TypeString),
 		filtering.DeclareIdent("title", filtering.TypeString),
 		filtering.DeclareIdent("content", filtering.TypeString),
 		filtering.DeclareIdent("completed", filtering.TypeBool),
@@ -208,7 +208,7 @@ func (s *Service) SyncTodos(stream v1.TodoService_SyncTodosServer) error {
 			event = newTodoEvent("updated", convertTodo(todo))
 		case "delete":
 			id := req.GetId()
-			if id == 0 {
+			if strings.TrimSpace(id) == "" {
 				id = req.GetTodo().GetId()
 			}
 			if _, err := s.DeleteTodo(stream.Context(), &v1.DeleteTodoRequest{Id: id}); err != nil {

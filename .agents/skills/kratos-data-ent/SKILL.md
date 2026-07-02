@@ -17,15 +17,17 @@ description: Use for Ent schema changes, data repositories, transactions, Redis-
 
 ## Workflow
 
-1. Define schemas in `internal/data/ent/schema`.
-2. Prefer explicit table names with `entsql.Annotation` when schema ownership is stable.
-3. Keep `internal/data/ent/template/database.tmpl` wired through `internal/data/ent/generate.go`; it generates `ent.Database` with `InTx`, `GetClient`, `Exec`, `Query`, and ctx-aware entity clients.
-4. Run `make ent`.
-5. Keep repo interfaces in biz; implementations in data.
-6. Use `*ent.Database` in data dependencies, not raw `*ent.Client`; call `db.GetClient()` only when raw Ent client access is required.
-7. Translate Ent/Redis/system errors into domain errors before crossing upward.
-8. Use DB constraints/transactions or Redis atomic operations for concurrency-sensitive state.
-9. Map Ent entities to `internal/biz/<module>/types.go` types before returning. Use `typecatch.CopyTo[SRC, DST](&src)` only when same-name fields mean the same thing; otherwise map explicitly.
+1. Create a schema with `go run entgo.io/ent/cmd/ent@v0.14.6 new <Name> --target internal/data/ent/schema`, then edit the generated file.
+2. All entity primary keys use `StringIDMixin{}` ULID string IDs. Use `StringIDMixin{Prefix: "xxx_"}` only when the prefix is part of the public contract.
+3. Add `TimeMixin{}` to normal business tables. Add `SoftDeleteMixin{}` only when the table needs soft delete. Add `ByUserMixin{}` only for tables that must be created with authenticated user context.
+4. Prefer explicit table names with `entsql.Annotation` when schema ownership is stable.
+5. Keep `internal/data/ent/template/database.tmpl` wired through `internal/data/ent/generate.go`; it generates `ent.Database` with `InTx`, `GetClient`, `Exec`, `Query`, and ctx-aware entity clients.
+6. Run `make ent`.
+7. Keep repo interfaces in biz; implementations in data.
+8. Use `*ent.Database` in data dependencies, not raw `*ent.Client`; call `db.GetClient()` only when raw Ent client access is required.
+9. Translate Ent/Redis/system errors into domain errors before crossing upward.
+10. Use DB constraints/transactions or Redis atomic operations for concurrency-sensitive state.
+11. Map Ent entities to `internal/biz/<module>/types.go` types before returning. Use `typecatch.CopyTo[SRC, DST](&src)` only when same-name fields mean the same thing; otherwise map explicitly.
 
 ## Do Not
 
@@ -39,6 +41,7 @@ description: Use for Ent schema changes, data repositories, transactions, Redis-
 ## Validation
 
 ```bash
+go run entgo.io/ent/cmd/ent@v0.14.6 new Todo --target internal/data/ent/schema
 make ent
 go test ./internal/data/... ./internal/biz/...
 ```

@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -17,6 +18,48 @@ type CasbinRuleCreate struct {
 	config
 	mutation *CasbinRuleMutation
 	hooks    []Hook
+}
+
+// SetVersion sets the "version" field.
+func (_c *CasbinRuleCreate) SetVersion(v time.Time) *CasbinRuleCreate {
+	_c.mutation.SetVersion(v)
+	return _c
+}
+
+// SetNillableVersion sets the "version" field if the given value is not nil.
+func (_c *CasbinRuleCreate) SetNillableVersion(v *time.Time) *CasbinRuleCreate {
+	if v != nil {
+		_c.SetVersion(*v)
+	}
+	return _c
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (_c *CasbinRuleCreate) SetCreatedAt(v time.Time) *CasbinRuleCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *CasbinRuleCreate) SetNillableCreatedAt(v *time.Time) *CasbinRuleCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *CasbinRuleCreate) SetUpdatedAt(v time.Time) *CasbinRuleCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *CasbinRuleCreate) SetNillableUpdatedAt(v *time.Time) *CasbinRuleCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
 }
 
 // SetPtype sets the "ptype" field.
@@ -117,6 +160,20 @@ func (_c *CasbinRuleCreate) SetNillableV5(v *string) *CasbinRuleCreate {
 	return _c
 }
 
+// SetID sets the "id" field.
+func (_c *CasbinRuleCreate) SetID(v string) *CasbinRuleCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *CasbinRuleCreate) SetNillableID(v *string) *CasbinRuleCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
 // Mutation returns the CasbinRuleMutation object of the builder.
 func (_c *CasbinRuleCreate) Mutation() *CasbinRuleMutation {
 	return _c.mutation
@@ -152,6 +209,18 @@ func (_c *CasbinRuleCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *CasbinRuleCreate) defaults() {
+	if _, ok := _c.mutation.Version(); !ok {
+		v := casbinrule.DefaultVersion()
+		_c.mutation.SetVersion(v)
+	}
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := casbinrule.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := casbinrule.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
 	if _, ok := _c.mutation.Ptype(); !ok {
 		v := casbinrule.DefaultPtype
 		_c.mutation.SetPtype(v)
@@ -180,10 +249,23 @@ func (_c *CasbinRuleCreate) defaults() {
 		v := casbinrule.DefaultV5
 		_c.mutation.SetV5(v)
 	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := casbinrule.DefaultID()
+		_c.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *CasbinRuleCreate) check() error {
+	if _, ok := _c.mutation.Version(); !ok {
+		return &ValidationError{Name: "version", err: errors.New(`ent: missing required field "CasbinRule.version"`)}
+	}
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "CasbinRule.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "CasbinRule.updated_at"`)}
+	}
 	if _, ok := _c.mutation.Ptype(); !ok {
 		return &ValidationError{Name: "ptype", err: errors.New(`ent: missing required field "CasbinRule.ptype"`)}
 	}
@@ -205,6 +287,11 @@ func (_c *CasbinRuleCreate) check() error {
 	if _, ok := _c.mutation.V5(); !ok {
 		return &ValidationError{Name: "v5", err: errors.New(`ent: missing required field "CasbinRule.v5"`)}
 	}
+	if v, ok := _c.mutation.ID(); ok {
+		if err := casbinrule.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "CasbinRule.id": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -219,8 +306,13 @@ func (_c *CasbinRuleCreate) sqlSave(ctx context.Context) (*CasbinRule, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected CasbinRule.ID type: %T", _spec.ID.Value)
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -229,8 +321,24 @@ func (_c *CasbinRuleCreate) sqlSave(ctx context.Context) (*CasbinRule, error) {
 func (_c *CasbinRuleCreate) createSpec() (*CasbinRule, *sqlgraph.CreateSpec) {
 	var (
 		_node = &CasbinRule{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(casbinrule.Table, sqlgraph.NewFieldSpec(casbinrule.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(casbinrule.Table, sqlgraph.NewFieldSpec(casbinrule.FieldID, field.TypeString))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.Version(); ok {
+		_spec.SetField(casbinrule.FieldVersion, field.TypeTime, value)
+		_node.Version = value
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(casbinrule.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(casbinrule.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
 	if value, ok := _c.mutation.Ptype(); ok {
 		_spec.SetField(casbinrule.FieldPtype, field.TypeString, value)
 		_node.Ptype = value
@@ -307,10 +415,6 @@ func (_c *CasbinRuleCreateBulk) Save(ctx context.Context) ([]*CasbinRule, error)
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

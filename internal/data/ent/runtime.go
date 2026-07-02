@@ -3,6 +3,8 @@
 package ent
 
 import (
+	"time"
+
 	"github.com/QZAiXH/kratos-layout/internal/data/ent/casbinrule"
 	"github.com/QZAiXH/kratos-layout/internal/data/ent/schema"
 )
@@ -11,8 +13,29 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	casbinruleMixin := schema.CasbinRule{}.Mixin()
+	casbinruleMixinFields0 := casbinruleMixin[0].Fields()
+	_ = casbinruleMixinFields0
+	casbinruleMixinFields1 := casbinruleMixin[1].Fields()
+	_ = casbinruleMixinFields1
 	casbinruleFields := schema.CasbinRule{}.Fields()
 	_ = casbinruleFields
+	// casbinruleDescVersion is the schema descriptor for version field.
+	casbinruleDescVersion := casbinruleMixinFields1[0].Descriptor()
+	// casbinrule.DefaultVersion holds the default value on creation for the version field.
+	casbinrule.DefaultVersion = casbinruleDescVersion.Default.(func() time.Time)
+	// casbinrule.UpdateDefaultVersion holds the default value on update for the version field.
+	casbinrule.UpdateDefaultVersion = casbinruleDescVersion.UpdateDefault.(func() time.Time)
+	// casbinruleDescCreatedAt is the schema descriptor for created_at field.
+	casbinruleDescCreatedAt := casbinruleMixinFields1[1].Descriptor()
+	// casbinrule.DefaultCreatedAt holds the default value on creation for the created_at field.
+	casbinrule.DefaultCreatedAt = casbinruleDescCreatedAt.Default.(func() time.Time)
+	// casbinruleDescUpdatedAt is the schema descriptor for updated_at field.
+	casbinruleDescUpdatedAt := casbinruleMixinFields1[2].Descriptor()
+	// casbinrule.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	casbinrule.DefaultUpdatedAt = casbinruleDescUpdatedAt.Default.(func() time.Time)
+	// casbinrule.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	casbinrule.UpdateDefaultUpdatedAt = casbinruleDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// casbinruleDescPtype is the schema descriptor for ptype field.
 	casbinruleDescPtype := casbinruleFields[0].Descriptor()
 	// casbinrule.DefaultPtype holds the default value on creation for the ptype field.
@@ -41,4 +64,10 @@ func init() {
 	casbinruleDescV5 := casbinruleFields[6].Descriptor()
 	// casbinrule.DefaultV5 holds the default value on creation for the v5 field.
 	casbinrule.DefaultV5 = casbinruleDescV5.Default.(string)
+	// casbinruleDescID is the schema descriptor for id field.
+	casbinruleDescID := casbinruleMixinFields0[0].Descriptor()
+	// casbinrule.DefaultID holds the default value on creation for the id field.
+	casbinrule.DefaultID = casbinruleDescID.Default.(func() string)
+	// casbinrule.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	casbinrule.IDValidator = casbinruleDescID.Validators[0].(func(string) error)
 }

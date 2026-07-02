@@ -89,8 +89,8 @@ func (TodoEventType) EnumDescriptor() ([]byte, []int) {
 // Todo is the canonical representation of a todo item.
 type Todo struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Server-assigned unique identifier. Read-only on create.
-	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 服务端分配的 ULID 唯一标识，创建时忽略。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Short human-readable title.
 	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
 	// Detailed description or notes for the todo item.
@@ -135,11 +135,11 @@ func (*Todo) Descriptor() ([]byte, []int) {
 	return file_todo_v1_todo_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Todo) GetId() int64 {
+func (x *Todo) GetId() string {
 	if x != nil {
 		return x.Id
 	}
-	return 0
+	return ""
 }
 
 func (x *Todo) GetTitle() string {
@@ -283,8 +283,8 @@ func (x *CreateTodoRequest) GetTodo() *Todo {
 // GetTodoRequest is the input for TodoService.GetTodo.
 type GetTodoRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Unique identifier of the todo item to retrieve.
-	Id            int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 要查询的待办事项 ULID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -319,11 +319,11 @@ func (*GetTodoRequest) Descriptor() ([]byte, []int) {
 	return file_todo_v1_todo_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetTodoRequest) GetId() int64 {
+func (x *GetTodoRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
-	return 0
+	return ""
 }
 
 // ListTodosRequest is the input for TodoService.ListTodos.
@@ -474,8 +474,8 @@ func (x *UpdateTodoRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 // DeleteTodoRequest is the input for TodoService.DeleteTodo.
 type DeleteTodoRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Unique identifier of the todo item to delete.
-	Id            int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 要删除的待办事项 ULID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -510,11 +510,11 @@ func (*DeleteTodoRequest) Descriptor() ([]byte, []int) {
 	return file_todo_v1_todo_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *DeleteTodoRequest) GetId() int64 {
+func (x *DeleteTodoRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
-	return 0
+	return ""
 }
 
 // WatchTodosRequest is the input for TodoService.WatchTodos.
@@ -600,8 +600,8 @@ type SyncTodoRequest struct {
 	Action string `protobuf:"bytes,1,opt,name=action,proto3" json:"action,omitempty"`
 	// Payload for `create` and `update` actions. Ignored for `delete`.
 	Todo *Todo `protobuf:"bytes,2,opt,name=todo,proto3" json:"todo,omitempty"`
-	// Identifier of the target todo. Required for `delete` and `update`.
-	Id int64 `protobuf:"varint,3,opt,name=id,proto3" json:"id,omitempty"`
+	// 目标待办事项 ULID，执行 `delete` 和 `update` 时必填。
+	Id string `protobuf:"bytes,3,opt,name=id,proto3" json:"id,omitempty"`
 	// Field mask used by `update` actions to limit which fields are overwritten.
 	// Ignored for `create` and `delete`.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,4,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -653,11 +653,11 @@ func (x *SyncTodoRequest) GetTodo() *Todo {
 	return nil
 }
 
-func (x *SyncTodoRequest) GetId() int64 {
+func (x *SyncTodoRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
-	return 0
+	return ""
 }
 
 func (x *SyncTodoRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
@@ -748,7 +748,7 @@ const file_todo_v1_todo_proto_rawDesc = "" +
 	"\n" +
 	"\x12todo/v1/todo.proto\x12\atodo.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xde\x01\n" +
 	"\x04Todo\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x18\n" +
 	"\acontent\x18\x03 \x01(\tR\acontent\x12\x1c\n" +
 	"\tcompleted\x18\x04 \x01(\bR\tcompleted\x12;\n" +
@@ -762,7 +762,7 @@ const file_todo_v1_todo_proto_rawDesc = "" +
 	"\x11CreateTodoRequest\x12&\n" +
 	"\x04todo\x18\x01 \x01(\v2\r.todo.v1.TodoB\x03\xe0A\x02R\x04todo\"%\n" +
 	"\x0eGetTodoRequest\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\x03B\x03\xe0A\x02R\x02id\"\x81\x01\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"\x81\x01\n" +
 	"\x10ListTodosRequest\x12\x1b\n" +
 	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
@@ -774,7 +774,7 @@ const file_todo_v1_todo_proto_rawDesc = "" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x02R\n" +
 	"updateMask\"(\n" +
 	"\x11DeleteTodoRequest\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\x03B\x03\xe0A\x02R\x02id\"\x82\x01\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"\x82\x01\n" +
 	"\x11WatchTodosRequest\x12\x1b\n" +
 	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
@@ -784,7 +784,7 @@ const file_todo_v1_todo_proto_rawDesc = "" +
 	"\x0fSyncTodoRequest\x12\x16\n" +
 	"\x06action\x18\x01 \x01(\tR\x06action\x12!\n" +
 	"\x04todo\x18\x02 \x01(\v2\r.todo.v1.TodoR\x04todo\x12\x0e\n" +
-	"\x02id\x18\x03 \x01(\x03R\x02id\x12;\n" +
+	"\x02id\x18\x03 \x01(\tR\x02id\x12;\n" +
 	"\vupdate_mask\x18\x04 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\"\xad\x01\n" +
 	"\tTodoEvent\x12\x16\n" +

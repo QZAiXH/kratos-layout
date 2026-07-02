@@ -17,15 +17,23 @@ func (CasbinRule) Annotations() []schema.Annotation {
 	return []schema.Annotation{entsql.Annotation{Table: "casbin_rule"}}
 }
 
+// Mixin 返回 Casbin 策略表通用字段。
+func (CasbinRule) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		StringIDMixin{},
+		TimeMixin{},
+	}
+}
+
 // Fields 定义 Casbin 策略字段。
 func (CasbinRule) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("ptype").Default(""),
-		field.String("v0").Default(""),
-		field.String("v1").Default(""),
-		field.String("v2").Default(""),
-		field.String("v3").Default(""),
-		field.String("v4").Default(""),
-		field.String("v5").Default(""),
+		field.String("ptype").Default("").Comment("Casbin 策略类型"),
+		field.String("v0").Default("").Comment("Casbin 策略字段 0"),
+		field.String("v1").Default("").Comment("Casbin 策略字段 1"),
+		field.String("v2").Default("").Comment("Casbin 策略字段 2"),
+		field.String("v3").Default("").Comment("Casbin 策略字段 3"),
+		field.String("v4").Default("").Comment("Casbin 策略字段 4"),
+		field.String("v5").Default("").Comment("Casbin 策略字段 5"),
 	}
 }

@@ -259,7 +259,7 @@ func (c *CasbinRuleClient) UpdateOne(_m *CasbinRule) *CasbinRuleUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *CasbinRuleClient) UpdateOneID(id int) *CasbinRuleUpdateOne {
+func (c *CasbinRuleClient) UpdateOneID(id string) *CasbinRuleUpdateOne {
 	mutation := newCasbinRuleMutation(c.config, OpUpdateOne, withCasbinRuleID(id))
 	return &CasbinRuleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -276,7 +276,7 @@ func (c *CasbinRuleClient) DeleteOne(_m *CasbinRule) *CasbinRuleDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *CasbinRuleClient) DeleteOneID(id int) *CasbinRuleDeleteOne {
+func (c *CasbinRuleClient) DeleteOneID(id string) *CasbinRuleDeleteOne {
 	builder := c.Delete().Where(casbinrule.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -293,12 +293,12 @@ func (c *CasbinRuleClient) Query() *CasbinRuleQuery {
 }
 
 // Get returns a CasbinRule entity by its id.
-func (c *CasbinRuleClient) Get(ctx context.Context, id int) (*CasbinRule, error) {
+func (c *CasbinRuleClient) Get(ctx context.Context, id string) (*CasbinRule, error) {
 	return c.Query().Where(casbinrule.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *CasbinRuleClient) GetX(ctx context.Context, id int) *CasbinRule {
+func (c *CasbinRuleClient) GetX(ctx context.Context, id string) *CasbinRule {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)

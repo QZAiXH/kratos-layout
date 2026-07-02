@@ -3,6 +3,8 @@
 package casbinrule
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 )
 
@@ -11,6 +13,12 @@ const (
 	Label = "casbin_rule"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldVersion holds the string denoting the version field in the database.
+	FieldVersion = "version"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
 	// FieldPtype holds the string denoting the ptype field in the database.
 	FieldPtype = "ptype"
 	// FieldV0 holds the string denoting the v0 field in the database.
@@ -32,6 +40,9 @@ const (
 // Columns holds all SQL columns for casbinrule fields.
 var Columns = []string{
 	FieldID,
+	FieldVersion,
+	FieldCreatedAt,
+	FieldUpdatedAt,
 	FieldPtype,
 	FieldV0,
 	FieldV1,
@@ -52,6 +63,16 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultVersion holds the default value on creation for the "version" field.
+	DefaultVersion func() time.Time
+	// UpdateDefaultVersion holds the default value on update for the "version" field.
+	UpdateDefaultVersion func() time.Time
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultPtype holds the default value on creation for the "ptype" field.
 	DefaultPtype string
 	// DefaultV0 holds the default value on creation for the "v0" field.
@@ -66,6 +87,10 @@ var (
 	DefaultV4 string
 	// DefaultV5 holds the default value on creation for the "v5" field.
 	DefaultV5 string
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() string
+	// IDValidator is a validator for the "id" field. It is called by the builders before save.
+	IDValidator func(string) error
 )
 
 // OrderOption defines the ordering options for the CasbinRule queries.
@@ -74,6 +99,21 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByVersion orders the results by the version field.
+func ByVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVersion, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
 // ByPtype orders the results by the ptype field.

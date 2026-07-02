@@ -21,7 +21,7 @@ var (
 
 // Todo 表示待办事项业务对象。
 type Todo struct {
-	ID         int64     // ID 是待办事项唯一编号。
+	ID         string    // ID 是待办事项 ULID。
 	Title      string    // Title 是待办事项标题。
 	Content    string    // Content 是待办事项内容。
 	Completed  bool      // Completed 表示待办事项是否完成。
@@ -32,7 +32,7 @@ type Todo struct {
 // Repo 定义待办事项仓储接口。
 type Repo interface {
 	// FindByID 根据编号查询待办事项。
-	FindByID(context.Context, int64) (*Todo, error)
+	FindByID(context.Context, string) (*Todo, error)
 	// ListTodos 按查询选项列出待办事项。
 	ListTodos(context.Context, ...ListOption) ([]*Todo, error)
 	// CreateTodo 创建待办事项。
@@ -40,7 +40,7 @@ type Repo interface {
 	// UpdateTodo 更新待办事项。
 	UpdateTodo(context.Context, *Todo) (*Todo, error)
 	// DeleteTodo 删除待办事项。
-	DeleteTodo(context.Context, int64) error
+	DeleteTodo(context.Context, string) error
 }
 
 // ListOption 配置待办事项列表查询。
@@ -93,7 +93,10 @@ func NewUseCase(repo Repo) *UseCase {
 }
 
 // GetTodo 根据编号返回待办事项。
-func (uc *UseCase) GetTodo(ctx context.Context, id int64) (*Todo, error) {
+func (uc *UseCase) GetTodo(ctx context.Context, id string) (*Todo, error) {
+	if strings.TrimSpace(id) == "" {
+		return nil, ErrTodoInvalidArgument
+	}
 	return uc.repo.FindByID(ctx, id)
 }
 
@@ -112,7 +115,7 @@ func (uc *UseCase) CreateTodo(ctx context.Context, todo *Todo) (*Todo, error) {
 
 // UpdateTodo 更新待办事项。
 func (uc *UseCase) UpdateTodo(ctx context.Context, todo *Todo) (*Todo, error) {
-	if todo == nil || todo.ID <= 0 {
+	if todo == nil || strings.TrimSpace(todo.ID) == "" {
 		return nil, ErrTodoInvalidArgument
 	}
 	if err := validateTodo(todo); err != nil {
@@ -122,8 +125,8 @@ func (uc *UseCase) UpdateTodo(ctx context.Context, todo *Todo) (*Todo, error) {
 }
 
 // DeleteTodo 删除待办事项。
-func (uc *UseCase) DeleteTodo(ctx context.Context, id int64) error {
-	if id <= 0 {
+func (uc *UseCase) DeleteTodo(ctx context.Context, id string) error {
+	if strings.TrimSpace(id) == "" {
 		return ErrTodoInvalidArgument
 	}
 	return uc.repo.DeleteTodo(ctx, id)

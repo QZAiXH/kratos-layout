@@ -9,28 +9,27 @@ import (
 
 	todobiz "github.com/QZAiXH/kratos-layout/internal/biz/todo"
 	"github.com/QZAiXH/kratos-layout/internal/data/base"
+	"github.com/QZAiXH/kratos-layout/internal/pkg/id"
 )
 
 // todoRepo 用内存存储实现待办事项仓储。
 type todoRepo struct {
 	data *base.Data // data 是数据层共享依赖。
 
-	mu     sync.RWMutex            // mu 保护内存待办事项集合。
-	nextID int64                   // nextID 是下一条待办事项编号。
-	todos  map[int64]*todobiz.Todo // todos 保存待办事项快照。
+	mu    sync.RWMutex             // mu 保护内存待办事项集合。
+	todos map[string]*todobiz.Todo // todos 保存待办事项快照。
 }
 
 // NewRepo 创建待办事项仓储实例。
 func NewRepo(data *base.Data) todobiz.Repo {
 	return &todoRepo{
-		data:   data,
-		nextID: 1,
-		todos:  make(map[int64]*todobiz.Todo),
+		data:  data,
+		todos: make(map[string]*todobiz.Todo),
 	}
 }
 
 // FindByID 根据编号查询待办事项。
-func (r *todoRepo) FindByID(_ context.Context, id int64) (*todobiz.Todo, error) {
+func (r *todoRepo) FindByID(_ context.Context, id string) (*todobiz.Todo, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -59,7 +58,10 @@ func (r *todoRepo) ListTodos(_ context.Context, opts ...todobiz.ListOption) ([]*
 		todos = append(todos, cloneTodo(todo))
 	}
 	slices.SortFunc(todos, func(a, b *todobiz.Todo) int {
-		return cmp.Compare(a.ID, b.ID)
+		return cmp.Or(
+			cmp.Compare(a.CreateTime.UnixNano(), b.CreateTime.UnixNano()),
+			cmp.Compare(a.ID, b.ID),
+		)
 	})
 
 	if options.Offset >= len(todos) {
@@ -79,11 +81,10 @@ func (r *todoRepo) CreateTodo(_ context.Context, todo *todobiz.Todo) (*todobiz.T
 
 	now := time.Now()
 	todo = cloneTodo(todo)
-	todo.ID = r.nextID
+	todo.ID = id.ULID("")
 	todo.CreateTime = now
 	todo.UpdateTime = now
 	r.todos[todo.ID] = cloneTodo(todo)
-	r.nextID++
 	return cloneTodo(todo), nil
 }
 
@@ -104,7 +105,7 @@ func (r *todoRepo) UpdateTodo(_ context.Context, todo *todobiz.Todo) (*todobiz.T
 }
 
 // DeleteTodo 删除待办事项。
-func (r *todoRepo) DeleteTodo(_ context.Context, id int64) error {
+func (r *todoRepo) DeleteTodo(_ context.Context, id string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 

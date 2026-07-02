@@ -84,8 +84,8 @@ func (_q *CasbinRuleQuery) FirstX(ctx context.Context) *CasbinRule {
 
 // FirstID returns the first CasbinRule ID from the query.
 // Returns a *NotFoundError when no CasbinRule ID was found.
-func (_q *CasbinRuleQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *CasbinRuleQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -97,7 +97,7 @@ func (_q *CasbinRuleQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *CasbinRuleQuery) FirstIDX(ctx context.Context) int {
+func (_q *CasbinRuleQuery) FirstIDX(ctx context.Context) string {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -135,8 +135,8 @@ func (_q *CasbinRuleQuery) OnlyX(ctx context.Context) *CasbinRule {
 // OnlyID is like Only, but returns the only CasbinRule ID in the query.
 // Returns a *NotSingularError when more than one CasbinRule ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *CasbinRuleQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *CasbinRuleQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -152,7 +152,7 @@ func (_q *CasbinRuleQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *CasbinRuleQuery) OnlyIDX(ctx context.Context) int {
+func (_q *CasbinRuleQuery) OnlyIDX(ctx context.Context) string {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -180,7 +180,7 @@ func (_q *CasbinRuleQuery) AllX(ctx context.Context) []*CasbinRule {
 }
 
 // IDs executes the query and returns a list of CasbinRule IDs.
-func (_q *CasbinRuleQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *CasbinRuleQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -192,7 +192,7 @@ func (_q *CasbinRuleQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *CasbinRuleQuery) IDsX(ctx context.Context) []int {
+func (_q *CasbinRuleQuery) IDsX(ctx context.Context) []string {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -265,12 +265,12 @@ func (_q *CasbinRuleQuery) Clone() *CasbinRuleQuery {
 // Example:
 //
 //	var v []struct {
-//		Ptype string `json:"ptype,omitempty"`
+//		Version time.Time `json:"version,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.CasbinRule.Query().
-//		GroupBy(casbinrule.FieldPtype).
+//		GroupBy(casbinrule.FieldVersion).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *CasbinRuleQuery) GroupBy(field string, fields ...string) *CasbinRuleGroupBy {
@@ -288,11 +288,11 @@ func (_q *CasbinRuleQuery) GroupBy(field string, fields ...string) *CasbinRuleGr
 // Example:
 //
 //	var v []struct {
-//		Ptype string `json:"ptype,omitempty"`
+//		Version time.Time `json:"version,omitempty"`
 //	}
 //
 //	client.CasbinRule.Query().
-//		Select(casbinrule.FieldPtype).
+//		Select(casbinrule.FieldVersion).
 //		Scan(ctx, &v)
 func (_q *CasbinRuleQuery) Select(fields ...string) *CasbinRuleSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
@@ -374,7 +374,7 @@ func (_q *CasbinRuleQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *CasbinRuleQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(casbinrule.Table, casbinrule.Columns, sqlgraph.NewFieldSpec(casbinrule.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(casbinrule.Table, casbinrule.Columns, sqlgraph.NewFieldSpec(casbinrule.FieldID, field.TypeString))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

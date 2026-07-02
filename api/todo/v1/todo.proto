@@ -87,8 +87,8 @@ service TodoService {
 
 // Todo is the canonical representation of a todo item.
 message Todo {
-  // Server-assigned unique identifier. Read-only on create.
-  int64 id = 1;
+  // 服务端分配的 ULID 唯一标识，创建时忽略。
+  string id = 1;
   // Short human-readable title.
   string title = 2;
   // Detailed description or notes for the todo item.
@@ -119,8 +119,8 @@ message CreateTodoRequest {
 
 // GetTodoRequest is the input for TodoService.GetTodo.
 message GetTodoRequest {
-  // Unique identifier of the todo item to retrieve.
-  int64 id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 要查询的待办事项 ULID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // ListTodosRequest is the input for TodoService.ListTodos.
@@ -161,8 +161,8 @@ message UpdateTodoRequest {
 
 // DeleteTodoRequest is the input for TodoService.DeleteTodo.
 message DeleteTodoRequest {
-  // Unique identifier of the todo item to delete.
-  int64 id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 要删除的待办事项 ULID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // WatchTodosRequest is the input for TodoService.WatchTodos.
@@ -186,8 +186,8 @@ message SyncTodoRequest {
   string action = 1;
   // Payload for `create` and `update` actions. Ignored for `delete`.
   Todo todo = 2;
-  // Identifier of the target todo. Required for `delete` and `update`.
-  int64 id = 3;
+  // 目标待办事项 ULID，执行 `delete` 和 `update` 时必填。
+  string id = 3;
   // Field mask used by `update` actions to limit which fields are overwritten.
   // Ignored for `create` and `delete`.
   google.protobuf.FieldMask update_mask = 4;

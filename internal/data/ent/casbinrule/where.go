@@ -3,53 +3,80 @@
 package casbinrule
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 	"github.com/QZAiXH/kratos-layout/internal/data/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.CasbinRule {
+func ID(id string) predicate.CasbinRule {
 	return predicate.CasbinRule(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.CasbinRule {
+func IDEQ(id string) predicate.CasbinRule {
 	return predicate.CasbinRule(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.CasbinRule {
+func IDNEQ(id string) predicate.CasbinRule {
 	return predicate.CasbinRule(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.CasbinRule {
+func IDIn(ids ...string) predicate.CasbinRule {
 	return predicate.CasbinRule(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.CasbinRule {
+func IDNotIn(ids ...string) predicate.CasbinRule {
 	return predicate.CasbinRule(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.CasbinRule {
+func IDGT(id string) predicate.CasbinRule {
 	return predicate.CasbinRule(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.CasbinRule {
+func IDGTE(id string) predicate.CasbinRule {
 	return predicate.CasbinRule(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.CasbinRule {
+func IDLT(id string) predicate.CasbinRule {
 	return predicate.CasbinRule(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.CasbinRule {
+func IDLTE(id string) predicate.CasbinRule {
 	return predicate.CasbinRule(sql.FieldLTE(FieldID, id))
+}
+
+// IDEqualFold applies the EqualFold predicate on the ID field.
+func IDEqualFold(id string) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldEqualFold(FieldID, id))
+}
+
+// IDContainsFold applies the ContainsFold predicate on the ID field.
+func IDContainsFold(id string) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldContainsFold(FieldID, id))
+}
+
+// Version applies equality check predicate on the "version" field. It's identical to VersionEQ.
+func Version(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldEQ(FieldVersion, v))
+}
+
+// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
 // Ptype applies equality check predicate on the "ptype" field. It's identical to PtypeEQ.
@@ -85,6 +112,126 @@ func V4(v string) predicate.CasbinRule {
 // V5 applies equality check predicate on the "v5" field. It's identical to V5EQ.
 func V5(v string) predicate.CasbinRule {
 	return predicate.CasbinRule(sql.FieldEQ(FieldV5, v))
+}
+
+// VersionEQ applies the EQ predicate on the "version" field.
+func VersionEQ(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldEQ(FieldVersion, v))
+}
+
+// VersionNEQ applies the NEQ predicate on the "version" field.
+func VersionNEQ(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldNEQ(FieldVersion, v))
+}
+
+// VersionIn applies the In predicate on the "version" field.
+func VersionIn(vs ...time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldIn(FieldVersion, vs...))
+}
+
+// VersionNotIn applies the NotIn predicate on the "version" field.
+func VersionNotIn(vs ...time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldNotIn(FieldVersion, vs...))
+}
+
+// VersionGT applies the GT predicate on the "version" field.
+func VersionGT(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldGT(FieldVersion, v))
+}
+
+// VersionGTE applies the GTE predicate on the "version" field.
+func VersionGTE(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldGTE(FieldVersion, v))
+}
+
+// VersionLT applies the LT predicate on the "version" field.
+func VersionLT(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldLT(FieldVersion, v))
+}
+
+// VersionLTE applies the LTE predicate on the "version" field.
+func VersionLTE(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldLTE(FieldVersion, v))
+}
+
+// CreatedAtEQ applies the EQ predicate on the "created_at" field.
+func CreatedAtEQ(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
+func CreatedAtNEQ(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldNEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtIn applies the In predicate on the "created_at" field.
+func CreatedAtIn(vs ...time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
+func CreatedAtNotIn(vs ...time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldNotIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtGT applies the GT predicate on the "created_at" field.
+func CreatedAtGT(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldGT(FieldCreatedAt, v))
+}
+
+// CreatedAtGTE applies the GTE predicate on the "created_at" field.
+func CreatedAtGTE(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldGTE(FieldCreatedAt, v))
+}
+
+// CreatedAtLT applies the LT predicate on the "created_at" field.
+func CreatedAtLT(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldLT(FieldCreatedAt, v))
+}
+
+// CreatedAtLTE applies the LTE predicate on the "created_at" field.
+func CreatedAtLTE(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
+func UpdatedAtEQ(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
+func UpdatedAtNEQ(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldNEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIn applies the In predicate on the "updated_at" field.
+func UpdatedAtIn(vs ...time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldNotIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtGT applies the GT predicate on the "updated_at" field.
+func UpdatedAtGT(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldGT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
+func UpdatedAtGTE(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldGTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLT applies the LT predicate on the "updated_at" field.
+func UpdatedAtLT(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldLT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
+func UpdatedAtLTE(v time.Time) predicate.CasbinRule {
+	return predicate.CasbinRule(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
 // PtypeEQ applies the EQ predicate on the "ptype" field.

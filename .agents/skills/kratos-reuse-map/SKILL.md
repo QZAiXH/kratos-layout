@@ -9,7 +9,7 @@ description: Use before adding helpers, clients, converters, locks, pagination, 
 
 - `internal/pkg/typecatch`: copier-based same-name struct field copying.
 - `internal/pkg/pagination`: page size/page number normalization.
-- `internal/pkg/id`: UUID and prefixed ULID helpers.
+- `internal/pkg/id`: prefixed ULID helpers. Entity and public IDs default to ULID strings.
 - `internal/pkg/decimalx`: yuan/fen decimal helpers.
 - `internal/pkg/token`: Ed25519 JWT token pair.
 - `internal/pkg/authz`: current user extraction and JWT/Casbin middleware helpers.

@@ -42,7 +42,7 @@
             "type": "string"
           },
           "id": {
-            "description": "Identifier of the target todo. Required for `delete` and `update`.",
+            "description": "目标待办事项 ULID，执行 `delete` 和 `update` 时必填。",
             "type": "string"
           },
           "todo": {
@@ -78,7 +78,7 @@
             "type": "string"
           },
           "id": {
-            "description": "Server-assigned unique identifier. Read-only on create.",
+            "description": "服务端分配的 ULID 唯一标识，创建时忽略。",
             "type": "string"
           },
           "title": {
@@ -420,7 +420,7 @@
                 "examples": {
                   "snapshot_frame": {
                     "summary": "Snapshot event frame",
-                    "value": "data: {\"action\":\"snapshot\",\"type\":\"TODO_EVENT_TYPE_SNAPSHOT\",\"todo\":{\"id\":1,\"title\":\"ship docs\",\"completed\":false},\"event_time\":\"2026-07-02T10:00:00Z\"}"
+                    "value": "data: {\"action\":\"snapshot\",\"type\":\"TODO_EVENT_TYPE_SNAPSHOT\",\"todo\":{\"id\":\"01JZ4T00000000000000000000\",\"title\":\"ship docs\",\"completed\":false},\"event_time\":\"2026-07-02T10:00:00Z\"}"
                   }
                 },
                 "schema": {
@@ -476,7 +476,7 @@
         "operationId": "TodoService_DeleteTodo",
         "parameters": [
           {
-            "description": "Unique identifier of the todo item to delete.",
+            "description": "要删除的待办事项 ULID。",
             "in": "path",
             "name": "id",
             "required": true,
@@ -511,7 +511,7 @@
         "operationId": "TodoService_GetTodo",
         "parameters": [
           {
-            "description": "Unique identifier of the todo item to retrieve.",
+            "description": "要查询的待办事项 ULID。",
             "in": "path",
             "name": "id",
             "required": true,

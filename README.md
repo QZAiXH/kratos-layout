@@ -43,6 +43,17 @@ go test ./...
 make run
 ```
 
+## Ent Schema
+
+新增 Ent schema：
+
+```bash
+go run entgo.io/ent/cmd/ent@v0.14.6 new Todo --target internal/data/ent/schema
+make ent
+```
+
+模板内置 `StringIDMixin`、`TimeMixin`、`SoftDeleteMixin`、`ByUserMixin`。业务实体主键默认使用 `StringIDMixin{}` 生成 ULID 字符串 ID；需要创建/更新时间字段时加 `TimeMixin{}`；需要软删除时加 `SoftDeleteMixin{}`；只有必须绑定当前登录用户的表才加 `ByUserMixin{}`。
+
 ## GoLand Proto 报红
 
 最新 Kratos v3 模板通过 Buf 远程依赖解析 `google/api/*.proto`，不会提交旧版 `third_party/`。GoLand 的 proto 编辑器不一定会自动读取 Buf 远程依赖，因此查看 proto 时可能报红。

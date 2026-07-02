@@ -37,8 +37,8 @@ func TestTodoServiceCRUD(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CreateTodo() error = %v", err)
 	}
-	if created.GetId() != 1 {
-		t.Fatalf("CreateTodo() id = %d, want 1", created.GetId())
+	if created.GetId() == "" {
+		t.Fatal("CreateTodo() id is empty")
 	}
 	if created.GetCreateTime() == nil || created.GetUpdateTime() == nil {
 		t.Fatal("CreateTodo() did not set timestamps")
@@ -158,7 +158,7 @@ func TestTodoServiceValidation(t *testing.T) {
 		t.Fatalf("CreateTodo(empty title) error = %v, want bad request", err)
 	}
 	if _, err := svc.UpdateTodo(ctx, &v1.UpdateTodoRequest{
-		Todo:       &v1.Todo{Id: 1, Title: "missing mask"},
+		Todo:       &v1.Todo{Id: "01JZ4T00000000000000000000", Title: "missing mask"},
 		UpdateMask: &fieldmaskpb.FieldMask{},
 	}); !kratoserrors.IsBadRequest(err) {
 		t.Fatalf("UpdateTodo(empty mask) error = %v, want bad request", err)
@@ -172,7 +172,7 @@ func TestTodoServiceValidation(t *testing.T) {
 	if _, err := svc.ListTodos(ctx, &v1.ListTodosRequest{OrderBy: "content"}); err == nil {
 		t.Fatal("ListTodos(unsupported order_by) error = nil, want error")
 	}
-	if _, err := svc.DeleteTodo(ctx, &v1.DeleteTodoRequest{Id: 1}); !kratoserrors.IsNotFound(err) {
+	if _, err := svc.DeleteTodo(ctx, &v1.DeleteTodoRequest{Id: "01JZ4T00000000000000000000"}); !kratoserrors.IsNotFound(err) {
 		t.Fatalf("DeleteTodo(missing id) error = %v, want not found", err)
 	}
 }
@@ -209,6 +209,12 @@ func TestTodoServiceWatchTodos(t *testing.T) {
 func TestTodoServiceSyncTodos(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestTodoService()
+	existing, err := svc.CreateTodo(ctx, &v1.CreateTodoRequest{
+		Todo: &v1.Todo{Title: "existing todo", Content: "before stream"},
+	})
+	if err != nil {
+		t.Fatalf("CreateTodo(existing) error = %v", err)
+	}
 	stream := &syncTodosStream{
 		fakeServerStream: fakeServerStream{ctx: ctx},
 		requests: []*v1.SyncTodoRequest{
@@ -218,14 +224,14 @@ func TestTodoServiceSyncTodos(t *testing.T) {
 			},
 			{
 				Action: "update",
-				Todo:   &v1.Todo{Id: 1, Completed: true},
+				Todo:   &v1.Todo{Id: existing.GetId(), Completed: true},
 				UpdateMask: &fieldmaskpb.FieldMask{
 					Paths: []string{"completed"},
 				},
 			},
 			{
 				Action: "delete",
-				Id:     1,
+				Id:     existing.GetId(),
 			},
 		},
 	}
@@ -236,14 +242,14 @@ func TestTodoServiceSyncTodos(t *testing.T) {
 	if got := len(stream.events); got != 3 {
 		t.Fatalf("SyncTodos() events len = %d, want 3", got)
 	}
-	if stream.events[0].GetAction() != "created" || stream.events[0].GetTodo().GetId() != 1 {
-		t.Fatalf("SyncTodos() create event = %+v, want created id 1", stream.events[0])
+	if stream.events[0].GetAction() != "created" || stream.events[0].GetTodo().GetId() == "" {
+		t.Fatalf("SyncTodos() create event = %+v, want created id", stream.events[0])
 	}
 	if stream.events[1].GetAction() != "updated" || !stream.events[1].GetTodo().GetCompleted() {
 		t.Fatalf("SyncTodos() update event = %+v, want completed update", stream.events[1])
 	}
-	if stream.events[2].GetAction() != "deleted" || stream.events[2].GetTodo().GetId() != 1 {
-		t.Fatalf("SyncTodos() delete event = %+v, want deleted id 1", stream.events[2])
+	if stream.events[2].GetAction() != "deleted" || stream.events[2].GetTodo().GetId() != existing.GetId() {
+		t.Fatalf("SyncTodos() delete event = %+v, want deleted id %s", stream.events[2], existing.GetId())
 	}
 }
 

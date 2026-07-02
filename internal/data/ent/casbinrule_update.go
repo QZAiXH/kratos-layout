@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -25,6 +26,18 @@ type CasbinRuleUpdate struct {
 // Where appends a list predicates to the CasbinRuleUpdate builder.
 func (_u *CasbinRuleUpdate) Where(ps ...predicate.CasbinRule) *CasbinRuleUpdate {
 	_u.mutation.Where(ps...)
+	return _u
+}
+
+// SetVersion sets the "version" field.
+func (_u *CasbinRuleUpdate) SetVersion(v time.Time) *CasbinRuleUpdate {
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *CasbinRuleUpdate) SetUpdatedAt(v time.Time) *CasbinRuleUpdate {
+	_u.mutation.SetUpdatedAt(v)
 	return _u
 }
 
@@ -133,6 +146,7 @@ func (_u *CasbinRuleUpdate) Mutation() *CasbinRuleMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *CasbinRuleUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -158,6 +172,18 @@ func (_u *CasbinRuleUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *CasbinRuleUpdate) defaults() {
+	if _, ok := _u.mutation.Version(); !ok {
+		v := casbinrule.UpdateDefaultVersion()
+		_u.mutation.SetVersion(v)
+	}
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := casbinrule.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
 func (_u *CasbinRuleUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *CasbinRuleUpdate {
 	_u.modifiers = append(_u.modifiers, modifiers...)
@@ -165,13 +191,19 @@ func (_u *CasbinRuleUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *Cas
 }
 
 func (_u *CasbinRuleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(casbinrule.Table, casbinrule.Columns, sqlgraph.NewFieldSpec(casbinrule.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(casbinrule.Table, casbinrule.Columns, sqlgraph.NewFieldSpec(casbinrule.FieldID, field.TypeString))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(casbinrule.FieldVersion, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(casbinrule.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := _u.mutation.Ptype(); ok {
 		_spec.SetField(casbinrule.FieldPtype, field.TypeString, value)
@@ -214,6 +246,18 @@ type CasbinRuleUpdateOne struct {
 	hooks     []Hook
 	mutation  *CasbinRuleMutation
 	modifiers []func(*sql.UpdateBuilder)
+}
+
+// SetVersion sets the "version" field.
+func (_u *CasbinRuleUpdateOne) SetVersion(v time.Time) *CasbinRuleUpdateOne {
+	_u.mutation.SetVersion(v)
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *CasbinRuleUpdateOne) SetUpdatedAt(v time.Time) *CasbinRuleUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetPtype sets the "ptype" field.
@@ -334,6 +378,7 @@ func (_u *CasbinRuleUpdateOne) Select(field string, fields ...string) *CasbinRul
 
 // Save executes the query and returns the updated CasbinRule entity.
 func (_u *CasbinRuleUpdateOne) Save(ctx context.Context) (*CasbinRule, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -359,6 +404,18 @@ func (_u *CasbinRuleUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *CasbinRuleUpdateOne) defaults() {
+	if _, ok := _u.mutation.Version(); !ok {
+		v := casbinrule.UpdateDefaultVersion()
+		_u.mutation.SetVersion(v)
+	}
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := casbinrule.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
 func (_u *CasbinRuleUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *CasbinRuleUpdateOne {
 	_u.modifiers = append(_u.modifiers, modifiers...)
@@ -366,7 +423,7 @@ func (_u *CasbinRuleUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *
 }
 
 func (_u *CasbinRuleUpdateOne) sqlSave(ctx context.Context) (_node *CasbinRule, err error) {
-	_spec := sqlgraph.NewUpdateSpec(casbinrule.Table, casbinrule.Columns, sqlgraph.NewFieldSpec(casbinrule.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(casbinrule.Table, casbinrule.Columns, sqlgraph.NewFieldSpec(casbinrule.FieldID, field.TypeString))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "CasbinRule.id" for update`)}
@@ -390,6 +447,12 @@ func (_u *CasbinRuleUpdateOne) sqlSave(ctx context.Context) (_node *CasbinRule, 
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.Version(); ok {
+		_spec.SetField(casbinrule.FieldVersion, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(casbinrule.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := _u.mutation.Ptype(); ok {
 		_spec.SetField(casbinrule.FieldPtype, field.TypeString, value)
