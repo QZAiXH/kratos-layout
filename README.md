@@ -45,17 +45,17 @@ make run
 
 ## GoLand Proto 报红
 
-最新 Kratos v3 模板通过 Buf 远程依赖解析 `google/api/*.proto`，不会提交旧版 `third_party/`。
+最新 Kratos v3 模板通过 Buf 远程依赖解析 `google/api/*.proto`，不会提交旧版 `third_party/`。GoLand 的 proto 编辑器不一定会自动读取 Buf 远程依赖，因此查看 proto 时可能报红。
 
-推荐在 GoLand 安装 `Buf for Protocol Buffers` 插件，并确保 `make init` 安装的 `buf` 在 `PATH`，插件会通过 `buf lsp serve` 读取 `buf.yaml` 和 `buf.lock`。
-
-如果 IDE 仍然无法解析 import，执行：
+先执行：
 
 ```bash
 make proto-ide
 ```
 
 然后在 GoLand 的 `Settings | Languages & Frameworks | Protocol Buffers` 里，把项目根目录下的 `.proto-deps` 加到 Import Paths。`.proto-deps/` 只给 IDE 使用，已加入 `.gitignore`，生成代码仍然使用 Buf。
+
+如果你的 GoLand 版本能在 Marketplace 里搜到 Buf 的 Protobuf 插件，也可以安装后让 IDE 直接读取 `buf.yaml` 和 `buf.lock`；搜不到就使用上面的 `.proto-deps` 方案。
 
 默认配置不强制连接 DB/Redis。需要本地依赖时：
 
