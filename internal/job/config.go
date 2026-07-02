@@ -13,14 +13,16 @@ const (
 	defaultShutdownTimeout   = 15 * time.Second
 )
 
+// Config 表示后台任务运行时配置。
 type Config struct {
-	Enabled           bool
-	Queue             string
-	WorkerConcurrency int
-	TaskTimeout       time.Duration
-	ShutdownTimeout   time.Duration
+	Enabled           bool          // Enabled 表示是否启用后台任务运行时。
+	Queue             string        // Queue 是默认队列名称。
+	WorkerConcurrency int           // WorkerConcurrency 是 worker 并发数。
+	TaskTimeout       time.Duration // TaskTimeout 是单个任务超时时间。
+	ShutdownTimeout   time.Duration // ShutdownTimeout 是关闭等待时间。
 }
 
+// NewConfig 将 protobuf 配置转换为任务运行时配置。
 func NewConfig(cfg *conf.Job) *Config {
 	config := &Config{
 		Queue:             defaultQueueName,

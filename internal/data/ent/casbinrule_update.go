@@ -17,8 +17,9 @@ import (
 // CasbinRuleUpdate is the builder for updating CasbinRule entities.
 type CasbinRuleUpdate struct {
 	config
-	hooks    []Hook
-	mutation *CasbinRuleMutation
+	hooks     []Hook
+	mutation  *CasbinRuleMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // Where appends a list predicates to the CasbinRuleUpdate builder.
@@ -157,6 +158,12 @@ func (_u *CasbinRuleUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (_u *CasbinRuleUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *CasbinRuleUpdate {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
+}
+
 func (_u *CasbinRuleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(casbinrule.Table, casbinrule.Columns, sqlgraph.NewFieldSpec(casbinrule.FieldID, field.TypeInt))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
@@ -187,6 +194,7 @@ func (_u *CasbinRuleUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if value, ok := _u.mutation.V5(); ok {
 		_spec.SetField(casbinrule.FieldV5, field.TypeString, value)
 	}
+	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{casbinrule.Label}
@@ -202,9 +210,10 @@ func (_u *CasbinRuleUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 // CasbinRuleUpdateOne is the builder for updating a single CasbinRule entity.
 type CasbinRuleUpdateOne struct {
 	config
-	fields   []string
-	hooks    []Hook
-	mutation *CasbinRuleMutation
+	fields    []string
+	hooks     []Hook
+	mutation  *CasbinRuleMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // SetPtype sets the "ptype" field.
@@ -350,6 +359,12 @@ func (_u *CasbinRuleUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (_u *CasbinRuleUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *CasbinRuleUpdateOne {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
+}
+
 func (_u *CasbinRuleUpdateOne) sqlSave(ctx context.Context) (_node *CasbinRule, err error) {
 	_spec := sqlgraph.NewUpdateSpec(casbinrule.Table, casbinrule.Columns, sqlgraph.NewFieldSpec(casbinrule.FieldID, field.TypeInt))
 	id, ok := _u.mutation.ID()
@@ -397,6 +412,7 @@ func (_u *CasbinRuleUpdateOne) sqlSave(ctx context.Context) (_node *CasbinRule, 
 	if value, ok := _u.mutation.V5(); ok {
 		_spec.SetField(casbinrule.FieldV5, field.TypeString, value)
 	}
+	_spec.AddModifiers(_u.modifiers...)
 	_node = &CasbinRule{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues

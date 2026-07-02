@@ -45,6 +45,11 @@ description: Use before non-trivial Kratos template work, feature design, issue 
 - Do not add a central DTO package; keep shared structs in the owning biz module.
 - Do not add cloud/vendor-specific code to the main template unless it is required by most generated projects.
 
+## Comment Rules
+
+- Handwritten Go functions, methods, interfaces, interface methods, structs, and every struct field must have Chinese comments.
+- Generated files are excluded from manual comment work.
+
 ## Validation
 
 ```bash

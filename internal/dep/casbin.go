@@ -7,6 +7,7 @@ import (
 	"github.com/casbin/casbin/v3/model"
 )
 
+// NewCasbinEnforcer 创建默认 Casbin 执行器。
 func NewCasbinEnforcer() (*casbinv3.Enforcer, error) {
 	m, err := model.NewModelFromString(casbinModel)
 	if err != nil {

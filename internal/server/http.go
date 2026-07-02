@@ -17,7 +17,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// NewHTTPServer new an HTTP server.
+// NewHTTPServer 创建 HTTP 服务并注册业务路由。
 func NewHTTPServer(c *conf.Server, security middleware.Middleware, logger *slog.Logger, todo *service.TodoService) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(

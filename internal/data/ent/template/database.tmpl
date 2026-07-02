@@ -1,0 +1,96 @@
+{{/* The line below tells Intellij/GoLand to enable the autocompletion based *gen.Type type. */}}
+{{/* gotype: entgo.io/ent/entc/gen.Type */}}
+
+{{ define "database" }}
+
+{{ template "header" $ }}
+
+import (
+    "context"
+    "fmt"
+
+    "entgo.io/ent/dialect/sql"
+)
+
+// Database 是持有所有 Ent builder 的数据库客户端。
+type Database struct {
+    client *Client // client 是底层 Ent 客户端。
+}
+
+// NewDatabase 基于给定选项创建数据库客户端。
+func NewDatabase(opts ...Option) *Database {
+    client := NewClient(opts...)
+    if strings.ToLower(os.Getenv("APP_LOG_LEVEL")) == "debug" {
+        client = client.Debug()
+    }
+    return &Database{client: client}
+}
+
+// InTx 在事务中执行给定函数，已有事务上下文会直接复用。
+func (db *Database) InTx(ctx context.Context, f func(context.Context) error) error {
+    tx := TxFromContext(ctx)
+    if tx != nil {
+        return f(ctx)
+    }
+
+    tx, err := db.client.Tx(ctx)
+    if err != nil {
+        return fmt.Errorf("starting transaction: %w", err)
+    }
+
+    if err = f(NewTxContext(ctx, tx)); err != nil {
+        if err2 := tx.Rollback(); err2 != nil {
+            return fmt.Errorf("rolling back transaction: %v (original error: %w)", err2, err)
+        }
+        return err
+    }
+
+    if err := tx.Commit(); err != nil {
+        return fmt.Errorf("committing transaction: %w", err)
+    }
+    return nil
+}
+
+// GetClient 返回底层 Ent 客户端。
+func (db *Database) GetClient() *Client {
+    return db.client
+}
+
+// loadClient 按上下文返回事务客户端或默认客户端。
+func (db *Database) loadClient(ctx context.Context) *Client {
+    tx := TxFromContext(ctx)
+    if tx != nil {
+        return tx.Client()
+    }
+    return db.client
+}
+
+// Exec 执行不返回行的 SQL 语句。
+func (db *Database) Exec(ctx context.Context, query string, args ...interface{}) (*sql.Result, error) {
+    var res sql.Result
+    err := db.loadClient(ctx).driver.Exec(ctx, query, args, &res)
+    if err != nil {
+        return nil, err
+    }
+    return &res, nil
+}
+
+// Query 执行返回行的 SQL 查询。
+func (db *Database) Query(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
+    var rows sql.Rows
+    err := db.loadClient(ctx).driver.Query(ctx, query, args, &rows)
+    if err != nil {
+        return nil, err
+    }
+    return &rows, nil
+}
+
+{{ range $n := $.Nodes }}
+    {{ $client := print $n.Name "Client" }}
+    // {{ $n.Name }} 返回 {{ $n.Name }} builder 客户端。
+    func (db *Database) {{ $n.Name }}(ctx context.Context) *{{ $client }} {
+        return db.loadClient(ctx).{{ $n.Name }}
+    }
+{{ end }}
+
+{{ end }}

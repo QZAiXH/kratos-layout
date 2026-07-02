@@ -7,6 +7,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+// NewAsynqRedisConnOpt 从 Redis 客户端生成 Asynq 连接配置。
 func NewAsynqRedisConnOpt(client *redis.Client) asynq.RedisConnOpt {
 	if client == nil {
 		return nil
@@ -19,6 +20,7 @@ func NewAsynqRedisConnOpt(client *redis.Client) asynq.RedisConnOpt {
 	}
 }
 
+// NewAsynqClient 从 Redis 客户端创建 Asynq 入队客户端。
 func NewAsynqClient(client *redis.Client) *asynq.Client {
 	if client == nil {
 		return nil
@@ -26,6 +28,7 @@ func NewAsynqClient(client *redis.Client) *asynq.Client {
 	return asynq.NewClientFromRedisClient(client)
 }
 
+// NewRedsync 从 Redis 客户端创建分布式锁管理器。
 func NewRedsync(client *redis.Client) *redsync.Redsync {
 	if client == nil {
 		return nil

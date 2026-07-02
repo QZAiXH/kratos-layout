@@ -24,6 +24,14 @@
 
 - `typecatch.CopyTo[SRC, DST](&src)`：只用于相邻层之间同名字段、同语义的结构体复制，例如 Ent entity 转 biz 模块结果类型。字段名、单位、权限过滤或业务语义不同就显式映射。
 
+## 中文注释规范
+
+- 手写 Go 代码中的函数、方法、接口、接口方法、结构体和结构体每个字段都必须有中文注释；字段优先使用行尾注释。
+- 注释说明职责、业务语义或约束，不只重复英文标识符。
+- 测试函数和 `t.Run` 子用例要有中文注释说明业务意图、前置条件和期望行为。
+- Proto 的 service、rpc、message、field、enum 和 enum value 都必须写中文注释，作为 OpenAPI 文档来源。
+- 生成文件不手改，也不要求补注释；`internal/pkg/commentcheck` 会随 `go test ./...` 检查手写 Go 中文注释。
+
 ## Project Skills
 
 任务匹配时优先读取 `.agents/skills/` 下的项目技能：
@@ -115,6 +123,7 @@ internal/biz/order/
 - 示例配置不能提交真实 DSN、token、密钥、证书。
 - 默认配置应能在无 DB/Redis 的情况下启动；需要外部依赖时通过 config/env 打开。
 - 新增生成源后先改源文件，再运行生成命令，不手改生成物。
+- Ent 生成使用 `internal/data/ent/template/database.tmpl`，会生成 `ent.Database` 包装器；data 层优先依赖 `*ent.Database`，用 `InTx` 传递事务上下文，用 `GetClient()` 访问底层 Ent client。
 - OpenAPI 正式产物由 `scripts/openapi` 生成到 `docs/openapi`，不要再依赖根目录 `openapi.yaml`。
 - SSE 文档用 `docs/openapi/overlays/<module>.yaml` 补 `text/event-stream`、响应头、examples。手写 SSE route 可以使用文档专用 proto 参与生成，但不要再注册对应 generated HTTP server，避免重复 path。
 - enum 文档必须写在 proto enum 和 enum value 注释里，发布器会生成 `x-enum-varnames`、`x-enum-descriptions` 和 description 中的“枚举值”说明块。

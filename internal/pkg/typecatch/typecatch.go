@@ -7,14 +7,17 @@ import (
 	"github.com/jinzhu/copier"
 )
 
+// Option 调整结构体复制选项。
 type Option func(*copier.Option)
 
+// WithConverters 追加自定义类型转换器。
 func WithConverters(converters ...copier.TypeConverter) Option {
 	return func(option *copier.Option) {
 		option.Converters = append(option.Converters, converters...)
 	}
 }
 
+// CopyTo 将同名字段复制到目标结构体。
 func CopyTo[SRC, DST any](src *SRC, opts ...Option) (*DST, error) {
 	if src == nil {
 		return nil, nil
@@ -32,6 +35,7 @@ func CopyTo[SRC, DST any](src *SRC, opts ...Option) (*DST, error) {
 	return dst, nil
 }
 
+// defaultCopierOption 返回模板默认复制选项。
 func defaultCopierOption() copier.Option {
 	return copier.Option{
 		DeepCopy: true,

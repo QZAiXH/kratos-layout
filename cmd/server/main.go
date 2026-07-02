@@ -33,10 +33,12 @@ var (
 	id, _ = os.Hostname()
 )
 
+// init 注册配置文件路径命令行参数。
 func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
+// newApp 组装 Kratos 应用并挂载后台任务生命周期。
 func newApp(logger *slog.Logger, jobs *job.Runtime, gs *grpc.Server, hs *http.Server) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
@@ -57,6 +59,7 @@ func newApp(logger *slog.Logger, jobs *job.Runtime, gs *grpc.Server, hs *http.Se
 	)
 }
 
+// main 加载配置、初始化依赖并启动服务。
 func main() {
 	flag.Parse()
 	c := config.New(
@@ -95,6 +98,7 @@ func main() {
 	}
 }
 
+// newLogger 根据配置创建 slog 兼容日志器和清理函数。
 func newLogger(c *conf.Log) (*slog.Logger, func() error, error) {
 	var opts []zaplog.Option
 	if c != nil {

@@ -9,7 +9,7 @@ import (
 
 const todoWatchSSEPath = "/v1/todos/watch"
 
-// sseHeaderFilter sets common SSE headers for generated or handwritten SSE routes.
+// sseHeaderFilter 为 SSE 路由设置通用响应头。
 func sseHeaderFilter(paths ...string) http.FilterFunc {
 	return func(next stdhttp.Handler) stdhttp.Handler {
 		return stdhttp.HandlerFunc(func(writer stdhttp.ResponseWriter, request *stdhttp.Request) {
@@ -25,6 +25,7 @@ func sseHeaderFilter(paths ...string) http.FilterFunc {
 	}
 }
 
+// isSSERequestPath 判断请求路径是否命中 SSE 路由模板。
 func isSSERequestPath(requestPath string, templates []string) bool {
 	for _, template := range templates {
 		if pathMatchesTemplate(requestPath, template) {
@@ -34,6 +35,7 @@ func isSSERequestPath(requestPath string, templates []string) bool {
 	return false
 }
 
+// pathMatchesTemplate 判断请求路径是否匹配 Kratos 风格路径模板。
 func pathMatchesTemplate(requestPath, templatePath string) bool {
 	requestSegments := strings.Split(strings.Trim(requestPath, "/"), "/")
 	templateSegments := strings.Split(strings.Trim(templatePath, "/"), "/")

@@ -290,6 +290,7 @@ func (g *generator) generateOpenAPIBaseline(ctx context.Context, module moduleSp
 	return nil
 }
 
+// runBuf 在仓库根目录执行 buf 命令。
 func (g *generator) runBuf(ctx context.Context, args ...string) error {
 	cmd := g.bufCommand(ctx, args...)
 	cmd.Dir = g.rootDir
@@ -301,6 +302,7 @@ func (g *generator) runBuf(ctx context.Context, args ...string) error {
 	return nil
 }
 
+// bufCommand 构造 buf 命令，优先使用显式配置的可执行文件。
 func (g *generator) bufCommand(ctx context.Context, args ...string) *exec.Cmd {
 	if g.bufBin != "" {
 		if path, err := exec.LookPath(g.bufBin); err == nil {

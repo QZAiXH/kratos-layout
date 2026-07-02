@@ -8,15 +8,18 @@ import (
 	"github.com/hibiken/asynq"
 )
 
+// HandlerFunc 表示后台任务处理函数。
 type HandlerFunc func(context.Context, *asynq.Task) error
 
+// Runtime 管理 Asynq worker 生命周期和任务路由。
 type Runtime struct {
-	enabled bool
-	server  *asynq.Server
-	mux     *asynq.ServeMux
-	log     *slog.Logger
+	enabled bool            // enabled 表示任务运行时是否启用。
+	server  *asynq.Server   // server 是 Asynq worker 服务。
+	mux     *asynq.ServeMux // mux 保存任务类型到处理器的映射。
+	log     *slog.Logger    // log 是运行时日志器。
 }
 
+// NewRuntime 创建后台任务运行时。
 func NewRuntime(cfg *Config, redisOpt asynq.RedisConnOpt, logger *slog.Logger) *Runtime {
 	runtime := &Runtime{log: logger}
 	if cfg == nil || !cfg.Enabled || redisOpt == nil {
@@ -31,6 +34,7 @@ func NewRuntime(cfg *Config, redisOpt asynq.RedisConnOpt, logger *slog.Logger) *
 	return runtime
 }
 
+// Handle 注册任务类型对应的处理器。
 func (r *Runtime) Handle(taskType string, handler HandlerFunc) {
 	if r == nil || r.mux == nil || handler == nil {
 		return
@@ -38,6 +42,7 @@ func (r *Runtime) Handle(taskType string, handler HandlerFunc) {
 	r.mux.HandleFunc(taskType, handler)
 }
 
+// Start 启动后台任务 worker。
 func (r *Runtime) Start(ctx context.Context) error {
 	if r == nil || !r.enabled || r.server == nil || r.mux == nil {
 		return nil
@@ -59,6 +64,7 @@ func (r *Runtime) Start(ctx context.Context) error {
 	}
 }
 
+// Stop 关闭后台任务 worker。
 func (r *Runtime) Stop(context.Context) error {
 	if r == nil || !r.enabled || r.server == nil {
 		return nil

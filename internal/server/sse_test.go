@@ -2,6 +2,7 @@ package server
 
 import "testing"
 
+// TestPathMatchesTemplate 验证 SSE 手写路由能按 Kratos 模板路径匹配真实请求路径。
 func TestPathMatchesTemplate(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -17,6 +18,7 @@ func TestPathMatchesTemplate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// 子用例覆盖精确路径、路径变量、空变量和不匹配路径的判定结果。
 			if got := pathMatchesTemplate(tt.path, tt.template); got != tt.want {
 				t.Fatalf("pathMatchesTemplate(%q, %q) = %v, want %v", tt.path, tt.template, got, tt.want)
 			}

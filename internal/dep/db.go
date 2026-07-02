@@ -9,12 +9,14 @@ import (
 	"github.com/QZAiXH/kratos-layout/internal/conf"
 	"github.com/QZAiXH/kratos-layout/internal/data/ent"
 
+	entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 	"github.com/redis/go-redis/v9"
 )
 
-func NewDB(c *conf.Data, logger *slog.Logger) (*ent.Client, func(), error) {
+// NewDB 根据配置创建 Ent 数据库客户端。
+func NewDB(c *conf.Data, logger *slog.Logger) (*ent.Database, func(), error) {
 	dbConf := c.GetDatabase()
 	if dbConf == nil {
 		return nil, func() {}, nil
@@ -25,24 +27,26 @@ func NewDB(c *conf.Data, logger *slog.Logger) (*ent.Client, func(), error) {
 		return nil, func() {}, nil
 	}
 
-	client, err := ent.Open(driver, source)
+	drv, err := entsql.Open(driver, source)
 	if err != nil {
 		return nil, nil, fmt.Errorf("open ent database: %w", err)
 	}
+	db := ent.NewDatabase(ent.Driver(drv))
 	cleanup := func() {
-		if err := client.Close(); err != nil && logger != nil {
+		if err := drv.Close(); err != nil && logger != nil {
 			logger.Warn("close ent database", slog.Any("error", err))
 		}
 	}
 	if dbConf.GetAutoMigrate() {
-		if err := client.Schema.Create(context.Background()); err != nil {
+		if err := db.GetClient().Schema.Create(context.Background()); err != nil {
 			cleanup()
 			return nil, nil, fmt.Errorf("auto migrate ent schema: %w", err)
 		}
 	}
-	return client, cleanup, nil
+	return db, cleanup, nil
 }
 
+// NewRedis 根据配置创建 Redis 客户端。
 func NewRedis(c *conf.Data, logger *slog.Logger) (*redis.Client, func(), error) {
 	redisConf := c.GetRedis()
 	if redisConf == nil || strings.TrimSpace(redisConf.GetAddr()) == "" {

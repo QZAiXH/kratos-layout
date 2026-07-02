@@ -20,7 +20,7 @@ import (
 	"github.com/google/wire"
 )
 
-// wireApp init kratos application.
+// wireApp 通过 Wire 初始化 Kratos 应用依赖图。
 func wireApp(*conf.Server, *conf.Data, *conf.Auth, *conf.Job, *slog.Logger) (*kratos.App, func(), error) {
 	panic(wire.Build(dep.ProviderSet, job.ProviderSet, server.ProviderSet, data.ProviderSet, biz.ProviderSet, service.ProviderSet, newApp))
 }

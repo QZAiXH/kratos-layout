@@ -14,6 +14,7 @@ import (
 	"github.com/go-kratos/kratos/v3/middleware/selector"
 )
 
+// NewTokenManager 根据认证配置创建令牌管理器。
 func NewTokenManager(c *conf.Auth) (*token.Manager, error) {
 	var privateKeyPath string
 	var accessTTL, refreshTTL time.Duration
@@ -29,6 +30,7 @@ func NewTokenManager(c *conf.Auth) (*token.Manager, error) {
 	return token.NewManager(privateKeyPath, accessTTL, refreshTTL)
 }
 
+// NewSecurityMiddleware 创建认证和鉴权中间件。
 func NewSecurityMiddleware(manager *token.Manager, enforcer *casbinv3.Enforcer) middleware.Middleware {
 	return selector.Server(
 		authz.JWTServer(manager),
@@ -36,6 +38,7 @@ func NewSecurityMiddleware(manager *token.Manager, enforcer *casbinv3.Enforcer) 
 	).Match(NewProtectedMatcher()).Build()
 }
 
+// NewProtectedMatcher 返回需要认证鉴权的操作匹配器。
 func NewProtectedMatcher() selector.MatchFunc {
 	anonymous := map[string]struct{}{
 		v1.OperationTodoServiceCreateTodo: {},

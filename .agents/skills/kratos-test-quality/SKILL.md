@@ -14,6 +14,12 @@ description: Use for tests, lint failures, generated-code validation, route/auth
 5. Use race tests for lock/concurrency-sensitive code.
 6. Run lint before publishing a template change.
 
+## Comment Rules
+
+- Every handwritten Go function, method, interface, interface method, struct, and struct field needs a Chinese comment.
+- Every top-level `Test*` and every `t.Run` sub-case needs a Chinese comment describing business intent, precondition, and expected behavior.
+- `go test ./...` runs `internal/pkg/commentcheck`, which skips generated files and checks handwritten Go comments.
+
 ## Commands
 
 ```bash

@@ -7,14 +7,17 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
+// CasbinRule 定义 Casbin 策略表结构。
 type CasbinRule struct {
-	ent.Schema
+	ent.Schema // Schema 嵌入 Ent 基础 schema。
 }
 
+// Annotations 指定 Casbin 策略表名。
 func (CasbinRule) Annotations() []schema.Annotation {
 	return []schema.Annotation{entsql.Annotation{Table: "casbin_rule"}}
 }
 
+// Fields 定义 Casbin 策略字段。
 func (CasbinRule) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("ptype").Default(""),

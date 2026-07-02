@@ -14,12 +14,14 @@ import (
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
+// newTestTodoService 创建使用内存仓储的测试服务。
 func newTestTodoService() *TodoService {
 	repo := data.NewTodoRepo(&data.Data{})
 	uc := biz.NewTodoUsecase(repo)
 	return NewTodoService(uc)
 }
 
+// TestTodoServiceCRUD 验证 Todo 服务完整创建、读取、更新和删除流程。
 func TestTodoServiceCRUD(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestTodoService()
@@ -75,6 +77,7 @@ func TestTodoServiceCRUD(t *testing.T) {
 	}
 }
 
+// TestTodoServiceListTodosPagination 验证列表接口按游标分页返回下一页令牌。
 func TestTodoServiceListTodosPagination(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestTodoService()
@@ -114,6 +117,7 @@ func TestTodoServiceListTodosPagination(t *testing.T) {
 	}
 }
 
+// TestTodoServiceListTodosFilterAndOrderByValidation 验证列表筛选和排序参数会进入业务查询路径。
 func TestTodoServiceListTodosFilterAndOrderByValidation(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestTodoService()
@@ -144,6 +148,7 @@ func TestTodoServiceListTodosFilterAndOrderByValidation(t *testing.T) {
 	}
 }
 
+// TestTodoServiceValidation 验证服务层会透传业务层参数校验和未找到错误。
 func TestTodoServiceValidation(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestTodoService()
@@ -171,6 +176,7 @@ func TestTodoServiceValidation(t *testing.T) {
 	}
 }
 
+// TestTodoServiceWatchTodos 验证服务端流接口会发送当前 Todo 快照事件。
 func TestTodoServiceWatchTodos(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestTodoService()
@@ -198,6 +204,7 @@ func TestTodoServiceWatchTodos(t *testing.T) {
 	}
 }
 
+// TestTodoServiceSyncTodos 验证双向流接口按 create/update/delete 请求顺序返回事件。
 func TestTodoServiceSyncTodos(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestTodoService()
@@ -239,33 +246,49 @@ func TestTodoServiceSyncTodos(t *testing.T) {
 	}
 }
 
+// fakeServerStream 提供测试用 gRPC ServerStream 基础实现。
 type fakeServerStream struct {
-	ctx context.Context
+	ctx context.Context // ctx 是测试流上下文。
 }
 
-func (s fakeServerStream) SetHeader(metadata.MD) error  { return nil }
+// SetHeader 记录测试流响应头。
+func (s fakeServerStream) SetHeader(metadata.MD) error { return nil }
+
+// SendHeader 发送测试流响应头。
 func (s fakeServerStream) SendHeader(metadata.MD) error { return nil }
-func (s fakeServerStream) SetTrailer(metadata.MD)       {}
-func (s fakeServerStream) Context() context.Context     { return s.ctx }
-func (s fakeServerStream) SendMsg(any) error            { return nil }
-func (s fakeServerStream) RecvMsg(any) error            { return nil }
 
+// SetTrailer 设置测试流尾部元数据。
+func (s fakeServerStream) SetTrailer(metadata.MD) {}
+
+// Context 返回测试流上下文。
+func (s fakeServerStream) Context() context.Context { return s.ctx }
+
+// SendMsg 发送测试流原始消息。
+func (s fakeServerStream) SendMsg(any) error { return nil }
+
+// RecvMsg 接收测试流原始消息。
+func (s fakeServerStream) RecvMsg(any) error { return nil }
+
+// watchTodosStream 捕获服务端流发送的待办事项事件。
 type watchTodosStream struct {
-	fakeServerStream
-	events []*v1.TodoEvent
+	fakeServerStream                 // fakeServerStream 提供基础流方法。
+	events           []*v1.TodoEvent // events 保存已发送事件。
 }
 
+// Send 记录服务端流事件。
 func (s *watchTodosStream) Send(event *v1.TodoEvent) error {
 	s.events = append(s.events, event)
 	return nil
 }
 
+// syncTodosStream 提供双向流测试输入并捕获输出事件。
 type syncTodosStream struct {
-	fakeServerStream
-	requests []*v1.SyncTodoRequest
-	events   []*v1.TodoEvent
+	fakeServerStream                       // fakeServerStream 提供基础流方法。
+	requests         []*v1.SyncTodoRequest // requests 是待接收的客户端请求。
+	events           []*v1.TodoEvent       // events 是服务端发送的事件。
 }
 
+// Recv 返回下一条双向流请求。
 func (s *syncTodosStream) Recv() (*v1.SyncTodoRequest, error) {
 	if len(s.requests) == 0 {
 		return nil, io.EOF
@@ -275,6 +298,7 @@ func (s *syncTodosStream) Recv() (*v1.SyncTodoRequest, error) {
 	return req, nil
 }
 
+// Send 记录双向流响应事件。
 func (s *syncTodosStream) Send(event *v1.TodoEvent) error {
 	s.events = append(s.events, event)
 	return nil

@@ -10,15 +10,16 @@ import (
 	"github.com/QZAiXH/kratos-layout/internal/biz"
 )
 
+// todoRepo 用内存存储实现待办事项仓储。
 type todoRepo struct {
-	data *Data
+	data *Data // data 是数据层共享依赖。
 
-	mu     sync.RWMutex
-	nextID int64
-	todos  map[int64]*biz.Todo
+	mu     sync.RWMutex        // mu 保护内存待办事项集合。
+	nextID int64               // nextID 是下一条待办事项编号。
+	todos  map[int64]*biz.Todo // todos 保存待办事项快照。
 }
 
-// NewTodoRepo creates a new TodoRepo instance.
+// NewTodoRepo 创建待办事项仓储实例。
 func NewTodoRepo(data *Data) biz.TodoRepo {
 	return &todoRepo{
 		data:   data,
@@ -27,6 +28,7 @@ func NewTodoRepo(data *Data) biz.TodoRepo {
 	}
 }
 
+// FindByID 根据编号查询待办事项。
 func (r *todoRepo) FindByID(_ context.Context, id int64) (*biz.Todo, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -38,6 +40,7 @@ func (r *todoRepo) FindByID(_ context.Context, id int64) (*biz.Todo, error) {
 	return cloneTodo(todo), nil
 }
 
+// ListTodos 按查询选项返回待办事项列表。
 func (r *todoRepo) ListTodos(_ context.Context, opts ...biz.ListOption) ([]*biz.Todo, error) {
 	options := biz.ListOptions{Limit: 20}
 	for _, opt := range opts {
@@ -68,6 +71,7 @@ func (r *todoRepo) ListTodos(_ context.Context, opts ...biz.ListOption) ([]*biz.
 	return todos[options.Offset:end], nil
 }
 
+// CreateTodo 创建待办事项并分配内存编号。
 func (r *todoRepo) CreateTodo(_ context.Context, todo *biz.Todo) (*biz.Todo, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -82,6 +86,7 @@ func (r *todoRepo) CreateTodo(_ context.Context, todo *biz.Todo) (*biz.Todo, err
 	return cloneTodo(todo), nil
 }
 
+// UpdateTodo 更新已存在的待办事项。
 func (r *todoRepo) UpdateTodo(_ context.Context, todo *biz.Todo) (*biz.Todo, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -97,6 +102,7 @@ func (r *todoRepo) UpdateTodo(_ context.Context, todo *biz.Todo) (*biz.Todo, err
 	return cloneTodo(updated), nil
 }
 
+// DeleteTodo 删除待办事项。
 func (r *todoRepo) DeleteTodo(_ context.Context, id int64) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -108,6 +114,7 @@ func (r *todoRepo) DeleteTodo(_ context.Context, id int64) error {
 	return nil
 }
 
+// cloneTodo 复制待办事项以避免外部修改内存状态。
 func cloneTodo(todo *biz.Todo) *biz.Todo {
 	if todo == nil {
 		return nil

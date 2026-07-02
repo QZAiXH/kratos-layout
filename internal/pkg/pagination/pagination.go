@@ -5,6 +5,7 @@ const (
 	MaxPageSize     = 200
 )
 
+// Normalize 规范化页码参数并返回 limit 与 offset。
 func Normalize(pageSize, pageNumber int32) (limit, offset int) {
 	if pageSize <= 0 {
 		pageSize = DefaultPageSize

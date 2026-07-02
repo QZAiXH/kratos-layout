@@ -22,36 +22,41 @@ const (
 
 var ErrInvalidToken = kratoserrors.Unauthorized("UNAUTHORIZED", "invalid token")
 
+// AccessTokenClaims 表示访问令牌中的业务声明。
 type AccessTokenClaims struct {
-	UserID  string `json:"uid"`
-	PairID  string `json:"pair_id"`
-	JTI     string `json:"jti"`
-	Version string `json:"ver"`
-	Type    string `json:"typ"`
-	jwtv5.RegisteredClaims
+	UserID                 string `json:"uid"`     // UserID 是用户编号。
+	PairID                 string `json:"pair_id"` // PairID 是访问令牌和刷新令牌的配对编号。
+	JTI                    string `json:"jti"`     // JTI 是访问令牌唯一编号。
+	Version                string `json:"ver"`     // Version 是用户 token 版本。
+	Type                   string `json:"typ"`     // Type 是令牌类型。
+	jwtv5.RegisteredClaims        // RegisteredClaims 是 JWT 标准声明。
 }
 
+// RefreshTokenClaims 表示刷新令牌中的业务声明。
 type RefreshTokenClaims struct {
-	UserID  string `json:"uid"`
-	PairID  string `json:"jti"`
-	Version string `json:"ver"`
-	Type    string `json:"typ"`
-	jwtv5.RegisteredClaims
+	UserID                 string `json:"uid"` // UserID 是用户编号。
+	PairID                 string `json:"jti"` // PairID 是令牌配对编号。
+	Version                string `json:"ver"` // Version 是用户 token 版本。
+	Type                   string `json:"typ"` // Type 是令牌类型。
+	jwtv5.RegisteredClaims        // RegisteredClaims 是 JWT 标准声明。
 }
 
+// Pair 表示访问令牌和刷新令牌组合。
 type Pair struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	ExpiresIn    int64  `json:"expires_in"`
+	AccessToken  string `json:"access_token"`  // AccessToken 是访问令牌。
+	RefreshToken string `json:"refresh_token"` // RefreshToken 是刷新令牌。
+	ExpiresIn    int64  `json:"expires_in"`    // ExpiresIn 是访问令牌有效秒数。
 }
 
+// Manager 管理 Ed25519 JWT 令牌签发和校验。
 type Manager struct {
-	privateKey      ed25519.PrivateKey
-	publicKey       ed25519.PublicKey
-	accessTokenTTL  time.Duration
-	refreshTokenTTL time.Duration
+	privateKey      ed25519.PrivateKey // privateKey 是令牌签名私钥。
+	publicKey       ed25519.PublicKey  // publicKey 是令牌验签公钥。
+	accessTokenTTL  time.Duration      // accessTokenTTL 是访问令牌有效期。
+	refreshTokenTTL time.Duration      // refreshTokenTTL 是刷新令牌有效期。
 }
 
+// NewManager 创建令牌管理器。
 func NewManager(privateKeyPath string, accessTTL, refreshTTL time.Duration) (*Manager, error) {
 	if accessTTL <= 0 {
 		accessTTL = 2 * time.Hour
@@ -72,6 +77,7 @@ func NewManager(privateKeyPath string, accessTTL, refreshTTL time.Duration) (*Ma
 	}, nil
 }
 
+// GenerateTokenPair 为用户签发访问令牌和刷新令牌。
 func (m *Manager) GenerateTokenPair(userID, tokenVersion string) (*Pair, error) {
 	pairID, err := randomID()
 	if err != nil {
@@ -101,6 +107,7 @@ func (m *Manager) GenerateTokenPair(userID, tokenVersion string) (*Pair, error) 
 	return &Pair{AccessToken: accessToken, RefreshToken: refreshToken, ExpiresIn: int64(m.accessTokenTTL.Seconds())}, nil
 }
 
+// GenerateAccessToken 为指定令牌配对签发访问令牌。
 func (m *Manager) GenerateAccessToken(userID, tokenVersion, pairID string) (string, error) {
 	jti, err := randomID()
 	if err != nil {
@@ -122,6 +129,7 @@ func (m *Manager) GenerateAccessToken(userID, tokenVersion, pairID string) (stri
 	return jwtv5.NewWithClaims(jwtv5.SigningMethodEdDSA, claims).SignedString(m.privateKey)
 }
 
+// ValidateAccessToken 校验访问令牌并返回声明。
 func (m *Manager) ValidateAccessToken(tokenString string) (*AccessTokenClaims, error) {
 	parsed, err := jwtv5.ParseWithClaims(tokenString, &AccessTokenClaims{}, func(token *jwtv5.Token) (any, error) {
 		if _, ok := token.Method.(*jwtv5.SigningMethodEd25519); !ok {
@@ -139,6 +147,7 @@ func (m *Manager) ValidateAccessToken(tokenString string) (*AccessTokenClaims, e
 	return claims, nil
 }
 
+// loadOrGeneratePrivateKey 读取 Ed25519 私钥或生成临时私钥。
 func loadOrGeneratePrivateKey(privateKeyPath string) (ed25519.PrivateKey, error) {
 	privateKeyPath = strings.TrimSpace(privateKeyPath)
 	if privateKeyPath == "" {
@@ -165,6 +174,7 @@ func loadOrGeneratePrivateKey(privateKeyPath string) (ed25519.PrivateKey, error)
 	return ed25519Key, nil
 }
 
+// randomID 生成随机十六进制编号。
 func randomID() (string, error) {
 	var b [16]byte
 	if _, err := rand.Read(b[:]); err != nil {
