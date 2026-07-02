@@ -83,7 +83,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer cleanupLogger()
+	defer func() {
+		if err := cleanupLogger(); err != nil {
+			logger.Error("清理日志资源失败", slog.Any("error", err))
+		}
+	}()
 	log.SetDefault(logger)
 
 	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Auth, bc.Job, logger)

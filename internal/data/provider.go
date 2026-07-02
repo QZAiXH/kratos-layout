@@ -6,7 +6,7 @@ import (
 	"github.com/google/wire"
 )
 
-// ProviderSet is data providers.
+// ProviderSet 提供 data 层依赖注入集合。
 var ProviderSet = wire.NewSet(base.NewData, NewTodoRepo)
 
 type Data = base.Data

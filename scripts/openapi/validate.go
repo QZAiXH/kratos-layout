@@ -147,23 +147,6 @@ func validateSSEResponse(operation map[string]any, requiredHeaders []string) err
 	return nil
 }
 
-// lookupOperation 定位指定 path + method 的 operation。
-func lookupOperation(doc map[string]any, pathName, method string) (map[string]any, error) {
-	paths, ok := doc["paths"].(map[string]any)
-	if !ok {
-		return nil, fmt.Errorf("document missing paths")
-	}
-	pathItem, ok := paths[pathName].(map[string]any)
-	if !ok {
-		return nil, fmt.Errorf("missing path %s", pathName)
-	}
-	operation, ok := pathItem[method].(map[string]any)
-	if !ok {
-		return nil, fmt.Errorf("missing %s %s operation", strings.ToUpper(method), pathName)
-	}
-	return operation, nil
-}
-
 // lookupResponse 读取 operation 下的指定响应。
 func lookupResponse(operation map[string]any, code string) (map[string]any, error) {
 	responses, ok := operation["responses"].(map[string]any)

@@ -12,9 +12,9 @@ description: Use before non-trivial Kratos template work, feature design, issue 
 - `cmd/server/wire.go`
 - `internal/server/http.go`
 - `internal/server/grpc.go`
-- `internal/biz/biz.go`
-- `internal/data/data.go`
-- `internal/service/service.go`
+- `internal/biz/provider.go`
+- `internal/data/provider.go`
+- `internal/service/provider.go`
 - `internal/dep/provider.go`
 - `internal/job` when background work is involved
 
