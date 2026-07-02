@@ -2,6 +2,8 @@ GOHOSTOS:=$(shell go env GOHOSTOS)
 GOPATH:=$(shell go env GOPATH)
 VERSION?=$(shell git describe --tags --always 2>/dev/null || echo dev)
 CMD_DIR?=$(shell find ./cmd -mindepth 1 -maxdepth 1 -type d | head -1)
+PROTO_IDE_DEPS_DIR?=.proto-deps
+PROTO_IDE_GOOGLEAPIS_REF?=$(shell awk '/name: buf.build\/googleapis\/googleapis/{found=1} found && /commit:/ {print $$2; exit}' buf.lock)
 
 .PHONY: init
 # init env
@@ -50,6 +52,13 @@ test:
 # run lint
 lint:
 	golangci-lint run
+
+.PHONY: proto-ide
+# export proto deps for IDE import paths
+proto-ide:
+	@if [ -z "$(PROTO_IDE_GOOGLEAPIS_REF)" ]; then echo "buf.lock missing googleapis dependency; run buf dep update first"; exit 1; fi
+	rm -rf $(PROTO_IDE_DEPS_DIR)
+	buf export buf.build/googleapis/googleapis:$(PROTO_IDE_GOOGLEAPIS_REF) --output=$(PROTO_IDE_DEPS_DIR)
 
 .PHONY: generate
 # generate
