@@ -18,6 +18,10 @@ description: Use before adding helpers, clients, converters, locks, pagination, 
 - `internal/biz/base`: common usecase logger base.
 - `internal/job`: Asynq runtime and enqueue helper.
 
+## Typecatch
+
+Use `typecatch.CopyTo[SRC, DST](&src)` only for boring same-name field mapping between adjacent layers, such as Ent entity to biz module result type. Keep explicit mapping when field names, units, permission filtering, or business meaning differ.
+
 ## Rule
 
 Search existing helpers before adding new ones. Add a helper only when it removes real duplication or keeps layer boundaries cleaner.

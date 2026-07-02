@@ -23,7 +23,7 @@ description: Use for Ent schema changes, data repositories, transactions, Redis-
 4. Keep repo interfaces in biz; implementations in data.
 5. Translate Ent/Redis/system errors into domain errors before crossing upward.
 6. Use DB constraints/transactions or Redis atomic operations for concurrency-sensitive state.
-7. Map Ent entities to `internal/biz/<module>/types.go` types before returning.
+7. Map Ent entities to `internal/biz/<module>/types.go` types before returning. Use `typecatch.CopyTo[SRC, DST](&src)` only when same-name fields mean the same thing; otherwise map explicitly.
 
 ## Do Not
 

@@ -20,6 +20,10 @@
 - 常用 helper：`typecatch`、`pagination`、`id`、`decimalx`
 - Dockerfile 与本地 Postgres/Redis docker-compose
 
+## 常用 helper 用法
+
+- `typecatch.CopyTo[SRC, DST](&src)`：只用于相邻层之间同名字段、同语义的结构体复制，例如 Ent entity 转 biz 模块结果类型。字段名、单位、权限过滤或业务语义不同就显式映射。
+
 ## Project Skills
 
 任务匹配时优先读取 `.agents/skills/` 下的项目技能：

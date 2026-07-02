@@ -15,7 +15,7 @@ func WithConverters(converters ...copier.TypeConverter) Option {
 	}
 }
 
-func CopyToDTO[SRC, DST any](src *SRC, opts ...Option) (*DST, error) {
+func CopyTo[SRC, DST any](src *SRC, opts ...Option) (*DST, error) {
 	if src == nil {
 		return nil, nil
 	}
@@ -27,7 +27,7 @@ func CopyToDTO[SRC, DST any](src *SRC, opts ...Option) (*DST, error) {
 		}
 	}
 	if err := copier.CopyWithOption(dst, src, option); err != nil {
-		return nil, fmt.Errorf("copy dto: %w", err)
+		return nil, fmt.Errorf("copy struct: %w", err)
 	}
 	return dst, nil
 }
