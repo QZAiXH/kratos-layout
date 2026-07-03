@@ -7,7 +7,7 @@
 模板默认包含：
 
 - Kratos v3 HTTP + gRPC
-- Buf protobuf 生成链
+- Buf protobuf 生成链，包含 Kratos v3 go-errors
 - OpenAPI 3.1 文档发布器，包含 SSE overlay 与 enum 注释增强
 - Google Wire
 - Ent ORM 基础 schema 与生成链
@@ -18,6 +18,7 @@
 - Redsync 分布式锁依赖
 - zap + slog 日志与日志轮转
 - 常用 helper：`typecatch`、`pagination`、`id`、`decimalx`
+- 统一错误包：`internal/pkg/errors`
 - Dockerfile 与本地 Postgres/Redis docker-compose
 
 ## 常用 helper 用法
@@ -87,7 +88,7 @@ make proto-ide # 导出 GoLand 等 IDE 使用的 proto import 缓存
 internal/biz/order/
   use_case.go   # UseCase、Repo interface、跨模块 Provider interface、构造函数；不写业务方法
   types.go      # 模块共享请求/结果类型、状态常量、值对象；不要另建 internal/dto
-  errors.go     # 模块私有 sentinel 或错误 helper；公开 API 错误仍从 proto error reason 生成
+  errors.go     # 仅放模块私有 sentinel；公开 API 错误放 internal/pkg/errors/<module>
   command.go    # 写操作编排
   query.go      # 读操作编排
   validate.go   # 复杂校验
@@ -120,6 +121,7 @@ internal/service/order/
 结构体组织规则：
 
 - 按业务模块包组织结构体，不按 DTO/VO/BO 这类类型种类建立中央包。
+- 导出类型、函数、变量命名不要以包名作为重复前缀，例如 `todo.TodoUseCase` 应改成 `todo.UseCase`；`revive` 的 `exported` 规则会检查这类 stutter。
 - API 边界类型以 proto 生成类型为准；模块内跨 service/biz/data 共享的请求、结果、值对象放在 `internal/biz/<module>/types.go`。
 - `types.go` 明显变大后，在同一模块目录按用途拆成 `request.go`、`result.go`、`model.go`、`status.go` 等；不要迁到 `internal/dto`。
 - data 层不要把 Ent entity 传出层边界，先映射成对应 biz 模块类型。
@@ -128,9 +130,11 @@ internal/service/order/
 
 错误处理规则：
 
-- 公开 API 错误先在 `api/<domain>/<api>/v1/*_error.proto` 或当前模块 error proto 定义 reason，再由 biz/data 返回对应 Kratos error。
+- 公开 API 错误先在 `api/<domain>/<api>/v1/*_error.proto` 或当前模块 error proto 定义 reason；error proto 必须 `import "errors/errors.proto"`，enum 写 `option (errors.default_code)`，每个对外错误枚举值写 `(errors.code)`。
+- `make api` 会生成 `*_errors.pb.go`，业务代码通过 `internal/pkg/errors/<module>` 复用生成的 `ErrorXxx`、`IsXxx` helper，不在 biz/data/service 分散手写 Kratos error。
 - data 层把 Ent/Redis/SQL 错误翻译成领域错误，不把底层错误直接抛给 service。
 - biz 层做业务错误归一和冲突/幂等判断；service 层只透传错误，不重新包装业务错误。
+- 错误只在源头用 `github.com/pkg/errors.WithStack` 包一次，上层直接透传；Kratos v3 `errors.FromError` 支持 wrapped errors。
 - 包内非 API sentinel 用 `errors.Is` 可识别的 `var ErrX = errors.New(...)`，只在模块内部或明确的 Provider contract 中使用。
 
 ## 模板约束
@@ -152,6 +156,7 @@ internal/service/order/
 不要手改：
 
 - `api/**/*.pb.go`
+- `api/**/*_errors.pb.go`
 - `api/**/*_http.pb.go`
 - `api/**/*_grpc.pb.go`
 - `internal/conf/conf.pb.go`

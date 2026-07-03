@@ -10,6 +10,7 @@ description: Use before adding helpers, clients, converters, locks, pagination, 
 - `internal/pkg/typecatch`: copier-based same-name struct field copying.
 - `internal/pkg/pagination`: page size/page number normalization.
 - `internal/pkg/id`: prefixed ULID helpers. Entity and public IDs default to ULID strings.
+- `internal/pkg/errors`: HTTP error encoder and domain error packages backed by Kratos go-errors.
 - `internal/pkg/decimalx`: yuan/fen decimal helpers.
 - `internal/pkg/token`: Ed25519 JWT token pair.
 - `internal/pkg/authz`: current user extraction and JWT/Casbin middleware helpers.

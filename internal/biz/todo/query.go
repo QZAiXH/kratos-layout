@@ -4,6 +4,9 @@ import (
 	"context"
 	"strings"
 
+	todoerr "github.com/QZAiXH/kratos-layout/internal/pkg/errors/todo"
+
+	pkgerrors "github.com/pkg/errors"
 	"go.einride.tech/aip/filtering"
 	"go.einride.tech/aip/ordering"
 )
@@ -39,7 +42,7 @@ func ListLimit(limit int) ListOption {
 // GetTodo 根据编号返回待办事项。
 func (uc *UseCase) GetTodo(ctx context.Context, id string) (*Todo, error) {
 	if strings.TrimSpace(id) == "" {
-		return nil, ErrTodoInvalidArgument
+		return nil, pkgerrors.WithStack(todoerr.ErrInvalidArgument)
 	}
 	return uc.repo.FindByID(ctx, id)
 }

@@ -26,7 +26,7 @@ description: Use for Ent schema changes, data repositories, transactions, Redis-
 7. Keep repo interfaces in biz; implementations in data.
 8. Keep `internal/data/<module>/repo.go` limited to the repo struct, dependency fields, and `NewRepo`. Put write methods in `command.go`, read methods in `query.go`, storage details in `store.go` or `cache.go`, and mapping in `mapper.go`.
 9. Use `*ent.Database` in data dependencies, not raw `*ent.Client`; call `db.GetClient()` only when raw Ent client access is required.
-10. Translate Ent/Redis/system errors into domain errors before crossing upward.
+10. Translate Ent/Redis/system errors into `internal/pkg/errors/<module>` domain errors before crossing upward.
 11. Use DB constraints/transactions or Redis atomic operations for concurrency-sensitive state.
 12. Map Ent entities to `internal/biz/<module>/types.go` types before returning. Use `typecatch.CopyTo[SRC, DST](&src)` only when same-name fields mean the same thing; otherwise map explicitly.
 
@@ -38,6 +38,7 @@ description: Use for Ent schema changes, data repositories, transactions, Redis-
 - Do not remove the Ent database template from generation when changing schema code.
 - Do not add in-memory locks for cross-instance coordination.
 - Do not return Ent/Redis/SQL errors directly to biz/service.
+- Do not create Kratos errors in data files directly; use generated error helpers exposed by `internal/pkg/errors/<module>` and wrap once at the origin.
 - Do not create `internal/dto`; map data results to structs owned by the consuming biz module, starting in `types.go` and splitting by purpose inside that module when needed.
 
 ## Validation

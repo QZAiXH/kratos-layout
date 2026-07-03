@@ -14,6 +14,7 @@ init:
 	go install github.com/bufbuild/buf/cmd/buf@latest
 	go install entgo.io/ent/cmd/ent@v0.14.6
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.8.0
+	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v3@v3.0.0-20260626125723-668db92c2c00
 
 .PHONY: config
 # generate internal proto

@@ -5,7 +5,10 @@ import (
 	"time"
 
 	todobiz "github.com/QZAiXH/kratos-layout/internal/biz/todo"
+	todoerr "github.com/QZAiXH/kratos-layout/internal/pkg/errors/todo"
 	"github.com/QZAiXH/kratos-layout/internal/pkg/id"
+
+	pkgerrors "github.com/pkg/errors"
 )
 
 // CreateTodo 创建待办事项并分配内存编号。
@@ -29,7 +32,7 @@ func (r *todoRepo) UpdateTodo(_ context.Context, todo *todobiz.Todo) (*todobiz.T
 
 	current, ok := r.todos[todo.ID]
 	if !ok {
-		return nil, todobiz.ErrTodoNotFound
+		return nil, pkgerrors.WithStack(todoerr.ErrNotFound)
 	}
 	updated := cloneTodo(todo)
 	updated.CreateTime = current.CreateTime
@@ -44,7 +47,7 @@ func (r *todoRepo) DeleteTodo(_ context.Context, id string) error {
 	defer r.mu.Unlock()
 
 	if _, ok := r.todos[id]; !ok {
-		return todobiz.ErrTodoNotFound
+		return pkgerrors.WithStack(todoerr.ErrNotFound)
 	}
 	delete(r.todos, id)
 	return nil

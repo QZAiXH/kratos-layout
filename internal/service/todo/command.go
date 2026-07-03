@@ -5,8 +5,9 @@ import (
 	"strings"
 
 	v1 "github.com/QZAiXH/kratos-layout/api/todo/v1"
-	todobiz "github.com/QZAiXH/kratos-layout/internal/biz/todo"
+	todoerr "github.com/QZAiXH/kratos-layout/internal/pkg/errors/todo"
 
+	pkgerrors "github.com/pkg/errors"
 	"go.einride.tech/aip/fieldmask"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -23,7 +24,7 @@ func (s *Service) CreateTodo(ctx context.Context, req *v1.CreateTodoRequest) (*v
 // UpdateTodo 更新待办事项。
 func (s *Service) UpdateTodo(ctx context.Context, req *v1.UpdateTodoRequest) (*v1.Todo, error) {
 	if strings.TrimSpace(req.GetTodo().GetId()) == "" || req.GetUpdateMask() == nil || len(req.GetUpdateMask().GetPaths()) == 0 {
-		return nil, todobiz.ErrTodoInvalidArgument
+		return nil, pkgerrors.WithStack(todoerr.ErrInvalidArgument)
 	}
 	current, err := s.GetTodo(ctx, &v1.GetTodoRequest{Id: req.GetTodo().GetId()})
 	if err != nil {

@@ -6,6 +6,9 @@ import (
 	"slices"
 
 	todobiz "github.com/QZAiXH/kratos-layout/internal/biz/todo"
+	todoerr "github.com/QZAiXH/kratos-layout/internal/pkg/errors/todo"
+
+	pkgerrors "github.com/pkg/errors"
 )
 
 // FindByID 根据编号查询待办事项。
@@ -15,7 +18,7 @@ func (r *todoRepo) FindByID(_ context.Context, id string) (*todobiz.Todo, error)
 
 	todo, ok := r.todos[id]
 	if !ok {
-		return nil, todobiz.ErrTodoNotFound
+		return nil, pkgerrors.WithStack(todoerr.ErrNotFound)
 	}
 	return cloneTodo(todo), nil
 }
@@ -27,7 +30,7 @@ func (r *todoRepo) ListTodos(_ context.Context, opts ...todobiz.ListOption) ([]*
 		opt(&options)
 	}
 	if options.Offset < 0 || options.Limit <= 0 {
-		return nil, todobiz.ErrTodoInvalidArgument
+		return nil, pkgerrors.WithStack(todoerr.ErrInvalidArgument)
 	}
 
 	r.mu.RLock()

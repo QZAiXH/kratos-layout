@@ -2,11 +2,12 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: todo/v1/error_reason.proto
+// source: todo/v1/todo_error.proto
 
 package v1
 
 import (
+	_ "github.com/go-kratos/kratos/v3/errors"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -21,15 +22,15 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// ErrorReason defines stable todo error reason codes.
+// ErrorReason 定义待办事项接口的稳定错误原因。
 type ErrorReason int32
 
 const (
-	// Default value for unknown todo errors.
+	// 未知错误。
 	ErrorReason_TODO_UNSPECIFIED ErrorReason = 0
-	// The requested todo item does not exist.
+	// 待办事项不存在。
 	ErrorReason_TODO_NOT_FOUND ErrorReason = 1
-	// The todo request payload or arguments are invalid.
+	// 待办事项请求参数非法。
 	ErrorReason_TODO_INVALID_ARGUMENT ErrorReason = 2
 )
 
@@ -58,11 +59,11 @@ func (x ErrorReason) String() string {
 }
 
 func (ErrorReason) Descriptor() protoreflect.EnumDescriptor {
-	return file_todo_v1_error_reason_proto_enumTypes[0].Descriptor()
+	return file_todo_v1_todo_error_proto_enumTypes[0].Descriptor()
 }
 
 func (ErrorReason) Type() protoreflect.EnumType {
-	return &file_todo_v1_error_reason_proto_enumTypes[0]
+	return &file_todo_v1_todo_error_proto_enumTypes[0]
 }
 
 func (x ErrorReason) Number() protoreflect.EnumNumber {
@@ -71,37 +72,37 @@ func (x ErrorReason) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ErrorReason.Descriptor instead.
 func (ErrorReason) EnumDescriptor() ([]byte, []int) {
-	return file_todo_v1_error_reason_proto_rawDescGZIP(), []int{0}
+	return file_todo_v1_todo_error_proto_rawDescGZIP(), []int{0}
 }
 
-var File_todo_v1_error_reason_proto protoreflect.FileDescriptor
+var File_todo_v1_todo_error_proto protoreflect.FileDescriptor
 
-const file_todo_v1_error_reason_proto_rawDesc = "" +
+const file_todo_v1_todo_error_proto_rawDesc = "" +
 	"\n" +
-	"\x1atodo/v1/error_reason.proto\x12\atodo.v1*R\n" +
-	"\vErrorReason\x12\x14\n" +
-	"\x10TODO_UNSPECIFIED\x10\x00\x12\x12\n" +
-	"\x0eTODO_NOT_FOUND\x10\x01\x12\x19\n" +
-	"\x15TODO_INVALID_ARGUMENT\x10\x02B'\n" +
+	"\x18todo/v1/todo_error.proto\x12\atodo.v1\x1a\x13errors/errors.proto*j\n" +
+	"\vErrorReason\x12\x1a\n" +
+	"\x10TODO_UNSPECIFIED\x10\x00\x1a\x04\xa8E\xf4\x03\x12\x18\n" +
+	"\x0eTODO_NOT_FOUND\x10\x01\x1a\x04\xa8E\x94\x03\x12\x1f\n" +
+	"\x15TODO_INVALID_ARGUMENT\x10\x02\x1a\x04\xa8E\x90\x03\x1a\x04\xa0E\xf4\x03B'\n" +
 	"\atodo.v1P\x01Z\x0eapi/todo/v1;v1\xa2\x02\tAPITodoV1b\x06proto3"
 
 var (
-	file_todo_v1_error_reason_proto_rawDescOnce sync.Once
-	file_todo_v1_error_reason_proto_rawDescData []byte
+	file_todo_v1_todo_error_proto_rawDescOnce sync.Once
+	file_todo_v1_todo_error_proto_rawDescData []byte
 )
 
-func file_todo_v1_error_reason_proto_rawDescGZIP() []byte {
-	file_todo_v1_error_reason_proto_rawDescOnce.Do(func() {
-		file_todo_v1_error_reason_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_todo_v1_error_reason_proto_rawDesc), len(file_todo_v1_error_reason_proto_rawDesc)))
+func file_todo_v1_todo_error_proto_rawDescGZIP() []byte {
+	file_todo_v1_todo_error_proto_rawDescOnce.Do(func() {
+		file_todo_v1_todo_error_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_todo_v1_todo_error_proto_rawDesc), len(file_todo_v1_todo_error_proto_rawDesc)))
 	})
-	return file_todo_v1_error_reason_proto_rawDescData
+	return file_todo_v1_todo_error_proto_rawDescData
 }
 
-var file_todo_v1_error_reason_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_todo_v1_error_reason_proto_goTypes = []any{
+var file_todo_v1_todo_error_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_todo_v1_todo_error_proto_goTypes = []any{
 	(ErrorReason)(0), // 0: todo.v1.ErrorReason
 }
-var file_todo_v1_error_reason_proto_depIdxs = []int32{
+var file_todo_v1_todo_error_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -109,26 +110,26 @@ var file_todo_v1_error_reason_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_todo_v1_error_reason_proto_init() }
-func file_todo_v1_error_reason_proto_init() {
-	if File_todo_v1_error_reason_proto != nil {
+func init() { file_todo_v1_todo_error_proto_init() }
+func file_todo_v1_todo_error_proto_init() {
+	if File_todo_v1_todo_error_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_todo_v1_error_reason_proto_rawDesc), len(file_todo_v1_error_reason_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_todo_v1_todo_error_proto_rawDesc), len(file_todo_v1_todo_error_proto_rawDesc)),
 			NumEnums:      1,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_todo_v1_error_reason_proto_goTypes,
-		DependencyIndexes: file_todo_v1_error_reason_proto_depIdxs,
-		EnumInfos:         file_todo_v1_error_reason_proto_enumTypes,
+		GoTypes:           file_todo_v1_todo_error_proto_goTypes,
+		DependencyIndexes: file_todo_v1_todo_error_proto_depIdxs,
+		EnumInfos:         file_todo_v1_todo_error_proto_enumTypes,
 	}.Build()
-	File_todo_v1_error_reason_proto = out.File
-	file_todo_v1_error_reason_proto_goTypes = nil
-	file_todo_v1_error_reason_proto_depIdxs = nil
+	File_todo_v1_todo_error_proto = out.File
+	file_todo_v1_todo_error_proto_goTypes = nil
+	file_todo_v1_todo_error_proto_depIdxs = nil
 }

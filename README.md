@@ -5,7 +5,7 @@
 ## 包含内容
 
 - Kratos v3 HTTP/gRPC
-- Buf + protobuf 生成链
+- Buf + protobuf 生成链，包含 Kratos v3 go-errors
 - OpenAPI 3.1 文档发布器，包含 SSE overlay 与 enum 注释增强
 - Wire 依赖注入
 - Ent ORM 基础 schema
@@ -16,6 +16,7 @@
 - Redsync 分布式锁依赖
 - zap/slog 日志与轮转
 - 常用 helper：`typecatch`、`pagination`、`id`、`decimalx`
+- `internal/pkg/errors` 统一错误包
 - Dockerfile 与 Postgres/Redis docker-compose
 - `.agents` 项目技能
 
@@ -46,6 +47,12 @@ make run
 
 `make lint` 会先生成 `bin/golangci-lint` 自定义二进制，用于加载本模板的 `cncomment` 中文注释检查插件；不要直接使用系统里的 `golangci-lint run` 跑本仓库配置。
 
+## 错误处理
+
+公开 API 错误先写在模块 `*_error.proto` 中，导入 `errors/errors.proto`，在 enum 上设置 `option (errors.default_code)`，并给每个错误枚举值设置 `(errors.code)`。运行 `make api` 后会生成 `*_errors.pb.go`。
+
+业务代码不要分散手写 Kratos error；在 `internal/pkg/errors/<module>` 中复用生成的 `ErrorXxx`、`IsXxx` helper，biz/data/service 只引用该包。错误在源头用 `github.com/pkg/errors.WithStack` 包一次，上层直接透传。
+
 ## Ent Schema
 
 新增 Ent schema：
@@ -59,7 +66,7 @@ make ent
 
 ## GoLand Proto 报红
 
-最新 Kratos v3 模板通过 Buf 远程依赖解析 `google/api/*.proto`，不会提交旧版 `third_party/`。GoLand 的 proto 编辑器不一定会自动读取 Buf 远程依赖，因此查看 proto 时可能报红。
+最新 Kratos v3 模板通过 Buf 远程依赖解析 `google/api/*.proto`，只提交 Kratos go-errors 需要的 `third_party/errors/errors.proto`。GoLand 的 proto 编辑器不一定会自动读取 Buf 远程依赖，因此查看 proto 时可能报红。
 
 先执行：
 

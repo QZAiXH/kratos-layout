@@ -30,7 +30,9 @@ description: Use when adding or changing protobuf contracts, generated HTTP/gRPC
 - For handwritten SSE routes, keep a document-only proto if useful for OpenAPI, but do not register the generated HTTP server for that proto path.
 - Document SSE responses through `docs/openapi/overlays/<module>.yaml` with `text/event-stream`, stream headers, and examples.
 - Put enum and enum value descriptions in proto comments; the OpenAPI publisher emits `x-enum-varnames`, `x-enum-descriptions`, and an enum description block.
-- Define public API errors in module error proto files first. Return those Kratos errors from biz/data and let service pass them through.
+- Define public API errors in module `*_error.proto` files first. Import `errors/errors.proto`, set enum `option (errors.default_code)`, and set `(errors.code)` on every public error enum value.
+- Run `make api` to generate `*_errors.pb.go`. Put shared error vars and `IsXxx` helpers in `internal/pkg/errors/<module>` by wrapping generated `ErrorXxx` and `IsXxx`; biz/data/service must import that package instead of hand-writing Kratos errors.
+- Add `github.com/pkg/errors.WithStack` once where an error originates, then pass it through unchanged in upper layers.
 - Use private sentinel errors only for package-local control flow or Provider contracts; keep them in module `errors.go` when needed.
 - Do not expose secrets, tokens, passwords, or internal credentials in responses.
 

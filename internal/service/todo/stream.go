@@ -8,7 +8,9 @@ import (
 
 	v1 "github.com/QZAiXH/kratos-layout/api/todo/v1"
 	todobiz "github.com/QZAiXH/kratos-layout/internal/biz/todo"
+	todoerr "github.com/QZAiXH/kratos-layout/internal/pkg/errors/todo"
 
+	pkgerrors "github.com/pkg/errors"
 	"go.einride.tech/aip/filtering"
 	"go.einride.tech/aip/ordering"
 	"go.einride.tech/aip/pagination"
@@ -106,7 +108,7 @@ func (s *Service) SyncTodos(stream v1.TodoService_SyncTodosServer) error {
 				Type:      v1.TodoEventType_TODO_EVENT_TYPE_DELETED,
 			}
 		default:
-			return todobiz.ErrTodoInvalidArgument
+			return pkgerrors.WithStack(todoerr.ErrInvalidArgument)
 		}
 		if err := stream.Send(event); err != nil {
 			return err
